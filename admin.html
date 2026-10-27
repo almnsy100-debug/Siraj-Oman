@@ -99,11 +99,12 @@ async function login(e){
 }
 function logout(){token='';entries=[];el('loginView').hidden=false;el('adminView').hidden=true;el('editorView').hidden=true;el('password').value='';msg('loginMessage','تم تسجيل الخروج.',false);history.replaceState(null,'','#login')}
 function renderTabs(){el('sectionsNav').replaceChildren();for(const [key,detail] of Object.entries(sections)){const btn=document.createElement('button');btn.className='btn secondary'+(key===section?' active':'');btn.textContent=detail.name;btn.type='button';btn.addEventListener('click',()=>selectSection(key));el('sectionsNav').append(btn)}}
+const seededSections=new Set(['articles','videos','lessons','museum','figures','monuments','discover','journey','quiz']);
 async function selectSection(name){
- if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();
- el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=!entries.length;
+ if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();el('addButton').disabled=true;
+ el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=true;
  msg('adminMessage','جارٍ تحميل البيانات...',false);
- try{entries=await cloudRead(name);renderItems();el('seedButton').hidden=entries.length>0;msg('adminMessage','عدد العناصر: '+entries.length,false)}catch(e){entries=[];renderItems();el('seedButton').hidden=true;msg('adminMessage','تعذّر تحميل البيانات: '+e.message,true)}
+ try{entries=await cloudRead(name);renderItems();el('seedButton').hidden=!seededSections.has(name)||entries.length>0;el('addButton').disabled=seededSections.has(name)&&entries.length===0;msg('adminMessage',entries.length?'عدد العناصر: '+entries.length:seededSections.has(name)?'المحتوى الأصلي ظاهر للزوار. اضغط «استيراد محتوى النسخة الحالية» أولاً لحفظه في قاعدة البيانات، ثم أضف أو عدّل أو احذف.':'لا يوجد محتوى منشور؛ يمكنك إضافة أول عنصر.',false)}catch(e){entries=[];renderItems();el('seedButton').hidden=true;msg('adminMessage','تعذّر تحميل البيانات: '+e.message,true)}
 }
 function renderItems(){
  const host=el('itemsList');host.replaceChildren();
@@ -184,7 +185,9 @@ function appendField(host,key,labelText,type,value,readOnly=false){
 }
 function validateCMSItem(item){
  const isQuiz=section==='quiz';
- const textFields=isQuiz?[item[0],item[3]]:Object.values(item).filter(v=>typeof v==='string');
+ const textFields=[];
+ function scan(v){if(typeof v==='string')textFields.push(v);else if(v&&typeof v==='object')Object.values(v).forEach(scan)}
+ scan(item);
  if(textFields.some(v=>/<\s*\/?\s*[a-z]|javascript:|onerror\s*=|onload\s*=/i.test(v)))throw Error('المدخل يحتوي على HTML أو تعليمات غير مسموحة.');
  if(isQuiz){
   if(!item[0]||!Array.isArray(item[1])||item[1].length<2||!Number.isInteger(item[2])||item[2]<0||item[2]>=item[1].length)throw Error('تحقق من نص السؤال وخيارات الإجابة ورقم الإجابة الصحيحة.');
@@ -224,7 +227,7 @@ async function deleteItem(i){
 }
 async function importStarter(){if(!token||entries.length)return;
 if(!confirm('سيتم نشر محتوى النسخة الحالية في هذا القسم لجميع الزوار. بعضه تجريبي وغير معتمد. هل تريد الاستمرار؟'))return;
-try{const r=await fetch(sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false)}catch(e){msg('adminMessage','تعذر الاستيراد: '+e.message,true)}
+try{const r=await fetch(sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=false;msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false)}catch(e){msg('adminMessage','تعذر الاستيراد: '+e.message,true)}
 }
 el('seedButton').addEventListener('click',importStarter);
 el('loginForm').addEventListener('submit',login);el('logoutButton').addEventListener('click',logout);el('addButton').addEventListener('click',()=>editItem(-1));el('cancelButton').addEventListener('click',()=>el('editorView').hidden=true);el('editorForm').addEventListener('submit',save);
