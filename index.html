@@ -94,6 +94,17 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 #page-studio button[onclick^="removeWork"],
 #page-studio button[onclick^="editWork"],
 #page-jaalan .jaalan-media-add,
+#page-monuments .mon-manage,
+#page-lessons .four-resource-button,
+#page-lessons .four-lesson-resources button,
+#page-studio .field:has(#preScore),
+#page-studio .field:has(#postScore),
+#page-studio .field:has(#sampleSize),
+#page-studio .field:has(#studioImport),
+#page-studio button[onclick^="saveImpact"],
+#page-studio button[onclick^="exportStudio"],
+#page-studio button[onclick^="importStudio"],
+#page-studio button[onclick^="printDossier"],
 #page-jaalan .jaalan-media-form,
 #page-monuments .mon-upload-actions,
 #page-monuments .mon-custom-upload,
@@ -142,7 +153,7 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 <section class="page" id="page-studio">
  <div class="pagehead"><div class="shell"><span class="tag">✨ مركز الإنتاج والتوثيق</span><h1>استوديو سراج الرقمي</h1><p>وثّق منتجات الطلبة، واربط كل منتج بمصدره من الموسوعة، وجهّز ملفًا منظّمًا للتقييم.</p><p class="section-source-tag">📚 المرجع المعرفي الرئيس: الموسوعة العُمانية والموسوعة العُمانية للناشئة.</p></div></div>
  <div class="shell section">
-  <div class="note" style="margin-bottom:20px">🔐 هذه نسخة محلية تجريبية: تحفظ المدخلات على المتصفح المستخدم فقط، ولا ترسلها إلى المدرسة أو تجمع نتائج جميع الطلبة. تجنّب إدخال أرقام مدنية أو أرقام هواتف أو معلومات خاصة.</div>
+  <div class="note" style="margin-bottom:20px">📚 هذه الواجهة للعرض والاطلاع على إنتاج الطلبة. يتولى مدير المنصة إضافة الأعمال ومراجعتها ونشرها من صفحة الإعدادات.</div>
   <div class="layout2">
    <div class="card"><h2>✍️ إضافة منتج رقمي</h2><form id="workForm">
     <div class="field"><label for="workTitle">عنوان العمل *</label><input id="workTitle" name="title" maxlength="110" required placeholder="مثال: فيلم عن السفن العُمانية"></div>
@@ -164,7 +175,7 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
     <div class="field" style="margin-top:15px"><label for="studioImport">استيراد ملف الاستوديو (JSON)</label><input id="studioImport" type="file" accept=".json,application/json"></div><button class="btn secondary small" onclick="importStudio()">استيراد الأعمال</button>
    </div>
   </div>
-  <div class="section-title" style="margin-top:36px"><div><h2>📁 سجل الأعمال والشواهد</h2><p>أعمال هذه النسخة على جهازك فقط. روابط المصادر لا تُعتمد حتى يراجعها فريق المحتوى.</p></div></div>
+  <div class="section-title" style="margin-top:36px"><div><h2>📁 سجل الأعمال والشواهد</h2><p>تُعرض هنا الأعمال المنشورة والمعتمدة. يرجى الرجوع إلى المصادر الموسوعية الموثقة.</p></div></div>
   <div class="grid" id="worksGallery"></div>
  </div>
 </section>
@@ -816,7 +827,7 @@ extendMonuments(); updateMonumentCounts(); if(document.readyState==='loading'){d
 
 
 <script src="assets/interactive-photos.js" defer></script>
-<script src="assets/cloud-monuments.js" defer></script>
+<!-- تم تعطيل سكربت الصور القديم المعتمد على /api غير المتاح في GitHub Pages. -->
 
 <!-- تم تعطيل تهيئة Firebase القديمة الخاصة بالحساب السابق؛ راجع MIGRATION_NOTES.md لربط مشروعك الجديد. -->
 </body>
