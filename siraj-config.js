@@ -6,8 +6,8 @@
    5) انشر قواعد firestore.rules من المستودع في Firebase Console.
 */
 window.SIRAJ_CLOUD_CONFIG = Object.freeze({
-  apiKey: "",
-  projectId: "",
-  adminEmail: "",
+  apiKey: "AIzaSyDZRtcYGph9lJ-EXCyAw2VsjygX-ISAmZY",
+  projectId: "siraj-oman-school",
+  adminEmail: "almnsy100@gmail.com",
   adminUsername: "admin"
 });
