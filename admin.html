@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة إدارة سراج عُمان الرقمية</title>
+<style>
+:root{--wine:#711e30;--gold:#c49a4d;--cream:#faf7f0;--muted:#677077}*{box-sizing:border-box}body{margin:0;background:var(--cream);font-family:Tahoma,Arial,sans-serif;color:#293036;line-height:1.8}button,input,textarea,select{font:inherit}button{cursor:pointer}.header{background:var(--wine);color:white;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.header a{color:white;text-decoration:none}.header strong{font-size:20px}.wrap{width:min(1050px,94%);margin:24px auto}.panel{background:white;border-radius:20px;border:1px solid #e8ded8;padding:25px;box-shadow:0 8px 30px #351c2410;margin:16px 0}.login{max-width:480px;margin:40px auto}.field{margin:14px 0}.field label{display:block;color:var(--wine);font-weight:700;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:11px;border:1px solid #ded0d2;border-radius:10px;background:white}.field textarea{min-height:130px;resize:vertical}.btn{border:0;border-radius:11px;background:var(--wine);color:#fff;padding:10px 18px;font-weight:700}.btn.secondary{background:white;color:var(--wine);border:1px solid #dabfc4}.btn.warn{background:#9e2430}.btn:disabled{opacity:.5}.muted{font-size:13px;color:var(--muted)}.notice{padding:14px;background:#fff7e7;border-radius:11px;color:#6c532a}.error{color:#a02432;font-weight:700}.ok{color:#167255;font-weight:700}.nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.nav button.active{background:var(--gold);color:#2b2020}.entries{display:grid;gap:10px}.entry{border:1px solid #e7dcd7;padding:14px;border-radius:13px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.entry strong{max-width:650px;overflow-wrap:anywhere}.actions{display:flex;gap:7px;flex-wrap:wrap}.toolbar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}h1,h2{color:var(--wine);margin-top:0}#editorView[hidden],#adminView[hidden],#loginView[hidden]{display:none!important}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}@media(max-width:600px){.panel{padding:18px}.header{padding:15px}h1{font-size:22px}}
+</style>
+<script src="./siraj-config.js"></script>
+</head>
+<body>
+<header class="header"><strong>⚙️ إدارة منصة سراج عُمان</strong><a href="./index.html#home">🏠 العودة إلى واجهة المستخدم</a></header>
+<main class="wrap">
+<section id="loginView" class="panel login">
+<h1>تسجيل دخول مدير المنصة</h1>
+<p>هذه الواجهة للمشرف المخوّل فقط. المحتوى العام متاح للزوار دون تسجيل دخول.</p>
+<form id="loginForm">
+<div class="field"><label for="username">اسم المستخدم</label><input id="username" name="username" autocomplete="username" placeholder="admin" required></div>
+<div class="field"><label for="password">كلمة المرور</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+<button id="loginButton" class="btn" type="submit">🔐 دخول لوحة الإدارة</button>
+</form>
+<p id="loginMessage" class="muted" role="status" aria-live="polite"></p>
+<div id="setupHint" class="notice" hidden>تسجيل الدخول الآمن غير مجهز بعد. يجب إعداد مشروع Firebase مستقل وإنشاء حساب المدير وصلاحياته، حسب ملف ADMIN_SETUP.md على GitHub. لا يتم قبول كلمة مرور محلية داخل صفحات GitHub Pages.</div>
+</section>
+<section id="adminView" hidden>
+<div class="panel toolbar"><div><h1>لوحة التحكم</h1><p class="muted">يمكنك إدارة ونشر المحتوى للزوار عبر Firestore. التغييرات المنشورة تظهر على جميع الأجهزة.</p></div><button id="logoutButton" class="btn secondary">تسجيل الخروج</button></div>
+<nav class="nav" id="sectionsNav" aria-label="أقسام الإدارة"></nav>
+<section class="panel">
+<div class="toolbar"><h2 id="sectionTitle"></h2><button class="btn" id="addButton">＋ إضافة محتوى</button></div>
+<p class="muted" id="sectionHint"></p>
+<p id="adminMessage" role="status" aria-live="polite"></p>
+<div id="itemsList" class="entries"></div>
+</section>
+<section class="panel" id="editorView" hidden>
+<h2 id="editorTitle">إضافة محتوى</h2>
+<form id="editorForm"><div id="editorFields"></div><div class="actions"><button class="btn" id="saveButton" type="submit">حفظ ونشر</button><button class="btn secondary" id="cancelButton" type="button">إلغاء</button></div></form>
+</section>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+const config=window.SIRAJ_CLOUD_CONFIG||{};
+const sections={
+articles:{name:'المقالات والصحيفة',hint:'مقالات موثقة تُعرض في قسم الصحيفة.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['author','فريق الإعداد','text'],['emoji','رمز تعبيري','text'],['body','نص المقال','textarea']]},
+videos:{name:'مكتبة الفيديو',hint:'أضف عنوان العمل ورابط فيديو منشور عبر HTTPS.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['desc','الوصف','textarea'],['url','رابط الفيديو','url']]},
+lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط التعليمية في قسم الدروس. يجب كتابة روابط HTTPS صالحة.',fields:[['title','عنوان الدرس','text'],['subject','المادة (social / science / arabic)','text'],['grade','الصف','text'],['term','الفصل','text'],['unit','الوحدة','text'],['desc','وصف الدرس','textarea'],['presentation','رابط العرض','url'],['video','رابط الفيديو','url'],['booklet','رابط الكتيب','url'],['gameUrl','رابط اللعبة','url']]},
+works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
+jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]}
+};
+const el=id=>document.getElementById(id);
+let token='',section='articles',entries=[],editingIndex=-1,busy=false;
+const ready=!!(config.apiKey&&config.projectId&&config.adminEmail&&config.adminUsername);
+el('setupHint').hidden=ready;
+function msg(id,value,isError){const e=el(id);e.textContent=value;e.className=isError?'error':'ok'}
+function endpoint(path){return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(config.projectId)+'/databases/(default)/documents/'+path}
+async function http(url,options){
+ const r=await fetch(url,options||{});
+ let result={};try{result=await r.json()}catch(e){}
+ if(!r.ok){const error=new Error(result.error?.message||'HTTP '+r.status);error.code=r.status;throw error}
+ return result
+}
+function authHeader(){return {'Authorization':'Bearer '+token,'Content-Type':'application/json'}}
+async function cloudRead(name){
+ try{const x=await http(endpoint('site_content/'+name));const value=x.fields?.payload?.stringValue||'[]';const a=JSON.parse(value);return Array.isArray(a)?a:[]}
+ catch(e){if(e.code===404)return [];throw e}
+}
+async function cloudWrite(name,items){
+ if(!token)throw Error('انتهت جلسة الدخول. سجّل الدخول من جديد.');
+ const data=JSON.stringify(items);
+ if(new TextEncoder().encode(data).length>800000)throw Error('حجم المحتوى كبير. قلل حجم النصوص.');
+ await http(endpoint('site_content/'+name)+'?updateMask.fieldPaths=payload&updateMask.fieldPaths=updatedAt',{
+ method:'PATCH',headers:authHeader(),body:JSON.stringify({fields:{payload:{stringValue:data},updatedAt:{timestampValue:new Date().toISOString()}}})
+ });
+}
+async function login(e){
+ e.preventDefault();
+ if(!ready){msg('loginMessage','يجب ربط Firebase وتعيين حساب المدير أولاً.',true);return}
+ if(el('username').value.trim()!==config.adminUsername){msg('loginMessage','اسم المستخدم أو كلمة المرور غير صحيحين.',true);return}
+ if(busy)return;busy=true;el('loginButton').disabled=true;msg('loginMessage','جارٍ التحقق من الهوية والصلاحيات...',false);
+ try{
+ const u=await http('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(config.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:config.adminEmail,password:el('password').value,returnSecureToken:true})});
+ const role=await http(endpoint('admins/'+encodeURIComponent(u.localId)),{headers:{Authorization:'Bearer '+u.idToken}});
+ if(role.fields?.active?.booleanValue!==true)throw Error('هذا الحساب غير مُصرّح له بالإدارة.');
+ token=u.idToken;
+ el('password').value='';
+ el('loginView').hidden=true;el('adminView').hidden=false;
+ renderTabs();await selectSection(section);
+ }catch(err){token='';msg('loginMessage','تعذّر تسجيل الدخول. تحقق من بيانات الحساب والصلاحيات وإعداد Firebase. '+(err.code===403?'لا توجد صلاحية وصول.':''),true);console.error('Siraj admin login:',err.message)}
+ finally{busy=false;el('loginButton').disabled=false}
+}
+function logout(){token='';entries=[];el('loginView').hidden=false;el('adminView').hidden=true;el('editorView').hidden=true;el('password').value='';msg('loginMessage','تم تسجيل الخروج.',false);history.replaceState(null,'','#login')}
+function renderTabs(){el('sectionsNav').replaceChildren();for(const [key,detail] of Object.entries(sections)){const btn=document.createElement('button');btn.className='btn secondary'+(key===section?' active':'');btn.textContent=detail.name;btn.type='button';btn.addEventListener('click',()=>selectSection(key));el('sectionsNav').append(btn)}}
+async function selectSection(name){
+ if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();
+ el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;
+ msg('adminMessage','جارٍ تحميل البيانات...',false);
+ try{entries=await cloudRead(name);renderItems();msg('adminMessage','عدد العناصر: '+entries.length,false)}catch(e){entries=[];renderItems();msg('adminMessage','تعذّر تحميل البيانات: '+e.message,true)}
+}
+function renderItems(){
+ const host=el('itemsList');host.replaceChildren();
+ if(!entries.length){const p=document.createElement('p');p.className='muted';p.textContent='لا توجد عناصر منشورة في هذا القسم بعد.';host.append(p);return}
+ entries.forEach((item,i)=>{
+ const line=document.createElement('div');line.className='entry';const name=document.createElement('strong');name.textContent=item.title||'عنصر بلا عنوان';
+ const acts=document.createElement('div');acts.className='actions';
+ const edit=document.createElement('button');edit.className='btn secondary';edit.textContent='تعديل';edit.addEventListener('click',()=>editItem(i));
+ const del=document.createElement('button');del.className='btn warn';del.textContent='حذف';del.addEventListener('click',()=>deleteItem(i));
+ acts.append(edit,del);line.append(name,acts);host.append(line)
+ })
+}
+function editItem(i){
+ if(!token)return;editingIndex=i;const item=i<0?{}:entries[i];el('editorTitle').textContent=i<0?'إضافة محتوى جديد':'تعديل: '+(item.title||'');
+ const host=el('editorFields');host.replaceChildren();
+ for(const [key,title,type] of sections[section].fields){
+ const div=document.createElement('div');div.className='field';const label=document.createElement('label');label.textContent=title;label.htmlFor='field-'+key;let input;
+ if(type==='textarea'){input=document.createElement('textarea')}else{input=document.createElement('input');input.type=type}
+ input.id='field-'+key;input.name=key;input.maxLength=type==='textarea'?12000:800;input.value=String(item[key]??'');
+ if(key==='title')input.required=true;
+ div.append(label,input);host.append(div)
+ }
+ el('editorView').hidden=false;el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
+}
+function readForm(){
+ const result={};for(const [key] of sections[section].fields){const input=el('field-'+key);const value=input.value.trim();if(input.type==='url'&&value&&!/^https:\/\//i.test(value))throw Error('الروابط يجب أن تبدأ بـ https://');result[key]=value}
+ result.id=editingIndex>=0?(entries[editingIndex].id||String(editingIndex)):('siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8));
+ if(section==='lessons'){result.options=entries[editingIndex]?.options||['','',''];result.correct=entries[editingIndex]?.correct??0}
+ return {...(editingIndex>=0?entries[editingIndex]:{}),...result}
+}
+async function save(e){
+ e.preventDefault();if(!token)return;const btn=el('saveButton');btn.disabled=true;try{
+ const record=readForm();const next=[...entries];if(editingIndex<0)next.push(record);else next[editingIndex]=record;
+ await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حفظ المحتوى ونشره في قاعدة البيانات.',false)
+ }catch(err){msg('adminMessage','فشل الحفظ: '+err.message,true)}
+ finally{btn.disabled=false}
+}
+async function deleteItem(i){
+ if(!token||!confirm('هل تريد حذف هذا العنصر من المحتوى المنشور لجميع الزوار؟'))return;
+ try{const next=entries.filter((_,n)=>n!==i);await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حذف العنصر من المحتوى المنشور.',false)}catch(e){msg('adminMessage','تعذّر الحذف: '+e.message,true)}
+}
+el('loginForm').addEventListener('submit',login);el('logoutButton').addEventListener('click',logout);el('addButton').addEventListener('click',()=>editItem(-1));el('cancelButton').addEventListener('click',()=>el('editorView').hidden=true);el('editorForm').addEventListener('submit',save);
+if(location.hash==='#admin')history.replaceState(null,'','#login');
+})();
+</script>
+</body>
+</html>
