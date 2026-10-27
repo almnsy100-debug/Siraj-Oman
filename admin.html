@@ -27,7 +27,7 @@
 <div class="panel toolbar"><div><h1>لوحة التحكم</h1><p class="muted">يمكنك إدارة ونشر المحتوى للزوار عبر Firestore. التغييرات المنشورة تظهر على جميع الأجهزة.</p></div><button id="logoutButton" class="btn secondary">تسجيل الخروج</button></div>
 <nav class="nav" id="sectionsNav" aria-label="أقسام الإدارة"></nav>
 <section class="panel">
-<div class="toolbar"><h2 id="sectionTitle"></h2><button class="btn" id="addButton">＋ إضافة محتوى</button></div>
+<div class="toolbar"><h2 id="sectionTitle"></h2><div class="actions"><button class="btn secondary" id="seedButton" type="button">استيراد محتوى النسخة الحالية</button><button class="btn" id="addButton">＋ إضافة محتوى</button></div></div>
 <p class="muted" id="sectionHint"></p>
 <p id="adminMessage" role="status" aria-live="polite"></p>
 <div id="itemsList" class="entries"></div>
@@ -49,6 +49,7 @@ lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط ا
 works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
 jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]}
 };
+const choices={subject:[['social','الدراسات الاجتماعية'],['science','العلوم'],['arabic','اللغة العربية']],grade:[['الخامس','الخامس'],['السادس','السادس'],['السابع','السابع'],['الثامن','الثامن']],term:[['الأول','الأول'],['الثاني','الثاني']],type:[['video','فيديو'],['audio','بودكاست / صوت']],status:[['قيد الإعداد','قيد الإعداد'],['جاهز للمراجعة','جاهز للمراجعة'],['مكتمل وموثّق','مكتمل وموثّق']]};
 const el=id=>document.getElementById(id);
 let token='',section='articles',entries=[],editingIndex=-1,busy=false;
 const ready=!!(config.apiKey&&config.projectId&&config.adminEmail&&config.adminUsername);
@@ -94,7 +95,7 @@ function logout(){token='';entries=[];el('loginView').hidden=false;el('adminView
 function renderTabs(){el('sectionsNav').replaceChildren();for(const [key,detail] of Object.entries(sections)){const btn=document.createElement('button');btn.className='btn secondary'+(key===section?' active':'');btn.textContent=detail.name;btn.type='button';btn.addEventListener('click',()=>selectSection(key));el('sectionsNav').append(btn)}}
 async function selectSection(name){
  if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();
- el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;
+ el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=!['articles','videos'].includes(name);
  msg('adminMessage','جارٍ تحميل البيانات...',false);
  try{entries=await cloudRead(name);renderItems();msg('adminMessage','عدد العناصر: '+entries.length,false)}catch(e){entries=[];renderItems();msg('adminMessage','تعذّر تحميل البيانات: '+e.message,true)}
 }
@@ -114,7 +115,7 @@ function editItem(i){
  const host=el('editorFields');host.replaceChildren();
  for(const [key,title,type] of sections[section].fields){
  const div=document.createElement('div');div.className='field';const label=document.createElement('label');label.textContent=title;label.htmlFor='field-'+key;let input;
- if(type==='textarea'){input=document.createElement('textarea')}else{input=document.createElement('input');input.type=type}
+ if(type==='textarea'){input=document.createElement('textarea')}else if(choices[key]&&(key!=='type'||section==='jaalan_media')&&(key!=='status'||section==='works')){input=document.createElement('select');for(const [value,labelText] of choices[key]){const opt=document.createElement('option');opt.value=value;opt.textContent=labelText;input.append(opt)}}else{input=document.createElement('input');input.type=type}
  input.id='field-'+key;input.name=key;input.maxLength=type==='textarea'?12000:800;input.value=String(item[key]??'');
  if(key==='title')input.required=true;
  div.append(label,input);host.append(div)
@@ -138,6 +139,11 @@ async function deleteItem(i){
  if(!token||!confirm('هل تريد حذف هذا العنصر من المحتوى المنشور لجميع الزوار؟'))return;
  try{const next=entries.filter((_,n)=>n!==i);await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حذف العنصر من المحتوى المنشور.',false)}catch(e){msg('adminMessage','تعذّر الحذف: '+e.message,true)}
 }
+async function importStarter(){if(!token||entries.length||!['articles','videos'].includes(section))return;
+if(!confirm('سيتم نشر محتوى النسخة الحالية في هذا القسم لجميع الزوار. بعضه تجريبي وغير معتمد. هل تريد الاستمرار؟'))return;
+try{const r=await fetch('./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false)}catch(e){msg('adminMessage','تعذر الاستيراد: '+e.message,true)}
+}
+el('seedButton').addEventListener('click',importStarter);
 el('loginForm').addEventListener('submit',login);el('logoutButton').addEventListener('click',logout);el('addButton').addEventListener('click',()=>editItem(-1));el('cancelButton').addEventListener('click',()=>el('editorView').hidden=true);el('editorForm').addEventListener('submit',save);
 if(location.hash==='#admin')history.replaceState(null,'','#login');
 })();
