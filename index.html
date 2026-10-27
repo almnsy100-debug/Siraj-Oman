@@ -816,16 +816,23 @@ async function loadContent(section){
 }
 async function refreshPublic(){
  if(!c.projectId)return;
- const [articles,videos,lessons,works,media]=await Promise.all(['articles','videos','lessons','works','jaalan_media'].map(loadContent));
+ const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz'].map(loadContent));
  try{
  if(articles!==null){state.articles=articles.filter(x=>x&&typeof x.title==='string');renderArticles();updateStats()}
  if(videos!==null){state.videos=videos.filter(x=>x&&typeof x.title==='string');renderVideos();updateStats()}
- if(lessons!==null&&lessons.length){lessonsList=lessons.filter(x=>x&&typeof x.title==='string').map(x=>({...x,options:Array.isArray(x.options)?x.options:['','',''],correct:Number(x.correct)||0}));renderLessons()}
+ if(lessons!==null){lessonsList=lessons.filter(x=>x&&typeof x.title==='string').map(x=>({...x,options:Array.isArray(x.options)?x.options:['','',''],correct:Number(x.correct)||0}));renderLessons()}
  if(works!==null){studio.works=works.filter(x=>x&&typeof x.title==='string');renderStudio()}
  if(media!==null&&typeof jaalanMediaList==='function'&&typeof jaalanRenderMedia==='function'){
   const clean=media.filter(x=>x&&typeof x.title==='string').map(x=>({...x,hasFile:false,url:/^https:\/\//i.test(x.url||'')?x.url:''}));
   jaalanMediaList=function(){return clean};jaalanRenderMedia();
  }
+ /* Replace content arrays in-place, preserving the original interactive functions and student experiences. */
+ if(museum!==null){const rows=museum.filter(x=>x&&x.id&&x.quiz&&Array.isArray(x.facts));exhibits.splice(0,exhibits.length,...rows);renderExhibits()}
+ if(figuresCloud!==null){const rows=figuresCloud.filter(x=>x&&x.id&&x.quiz&&Array.isArray(x.contributions));figures.splice(0,figures.length,...rows);renderFigures()}
+ if(monumentsCloud!==null){const rows=monumentsCloud.filter(x=>x&&x.id&&x.quiz&&Array.isArray(x.facts));monuments.splice(0,monuments.length,...rows);renderMonuments();if(typeof updateMonumentCounts==='function')updateMonumentCounts()}
+ if(discoverCloud!==null){const rows=discoverCloud.filter(x=>x&&x.id&&x.quiz&&x.position);omanGovernorates.splice(0,omanGovernorates.length,...rows);renderDiscover()}
+ if(journeyCloud!==null){const rows=journeyCloud.filter(x=>x&&x.id&&Array.isArray(x.a));regions.splice(0,regions.length,...rows);renderJourney()}
+ if(quizCloud!==null){const rows=quizCloud.filter(x=>Array.isArray(x)&&Array.isArray(x[1])&&Number.isInteger(x[2]));questions.splice(0,questions.length,...rows);quizIdx=0;quizPts=0;quizAnswered=false;renderQuiz()}
  }catch(e){console.warn('Siraj cloud display:',e.message)}
 }
 window.addEventListener('DOMContentLoaded',()=>{setTimeout(refreshPublic,0)});
