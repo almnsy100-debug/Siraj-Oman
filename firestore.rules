@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedInAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+    }
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+    match /site_content/{section} {
+      allow read: if section in ['articles','videos','lessons','works','jaalan_media'];
+      allow create, update: if signedInAdmin()
+        && section in ['articles','videos','lessons','works','jaalan_media']
+        && request.resource.data.keys().hasOnly(['payload','updatedAt'])
+        && request.resource.data.payload is string
+        && request.resource.data.payload.size() <= 850000;
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
