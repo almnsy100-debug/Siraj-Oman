@@ -24,6 +24,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 @media(max-width:700px){#sirajDock{top:79px;left:5px}#sirajDock button{padding:6px 9px;font-size:12px}#sirajDrawer{padding:7px}}
 
 #editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
+#editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}
 </style>
 <script src="./siraj-config.js"></script>
 </head>
@@ -153,6 +154,60 @@ function renderItems(){
  acts.append(edit,del);line.append(name,acts);host.append(line)
  })
 }
+
+let chosenPhoto='',photoPromise=Promise.resolve();
+function photoEditor(host,initial=''){
+ chosenPhoto=initial||'';photoPromise=Promise.resolve();
+ const box=document.createElement('div');box.className='siraj-photo';
+ const title=document.createElement('h3');title.textContent='🖼️ صورة المحتوى';box.append(title);
+ const label=document.createElement('label');label.textContent='أضف رابط صورة (اختياري)';label.htmlFor='photo-url';
+ const url=document.createElement('input');url.id='photo-url';url.type='url';url.placeholder='https://example.com/image.jpg';url.value=chosenPhoto.startsWith('https://')?chosenPhoto:'';
+ box.append(label,url);
+ const fileLabel=document.createElement('label');fileLabel.textContent='أو اختر صورة من جهازك';fileLabel.htmlFor='photo-file';
+ const input=document.createElement('input');input.type='file';input.id='photo-file';input.accept='image/jpeg,image/png,image/webp,image/gif';
+ box.append(fileLabel,input);
+ const preview=document.createElement('img');preview.alt='معاينة الصورة';preview.hidden=true;box.append(preview);
+ const info=document.createElement('small');info.textContent='الصور المختارة تُضغط تلقائيًا لتناسب المنصة وتُحفظ داخل المحتوى، بدون إعداد تخزين إضافي. لتحافظ على أعلى جودة استخدم رابط صورة HTTPS.';box.append(info);
+ const clear=document.createElement('button');clear.type='button';clear.className='btn secondary';clear.textContent='حذف الصورة';box.append(clear);
+ const redraw=()=>{const image=chosenPhoto||url.value.trim();preview.hidden=!image;if(image)preview.src=image;else preview.removeAttribute('src')};
+ url.addEventListener('input',()=>{chosenPhoto=url.value.trim();redraw()});
+ input.addEventListener('change',()=>{
+  const f=input.files&&input.files[0];if(!f)return;
+  if(!['image/jpeg','image/png','image/webp','image/gif'].includes(f.type)||f.size>5*1024*1024){info.textContent='الرجاء اختيار JPG أو PNG أو WebP أو GIF بحجم أقل من 5 ميجابايت.';input.value='';return}
+  info.textContent='جارٍ تجهيز الصورة...';
+  photoPromise=compressPhoto(f).then(data=>{chosenPhoto=data;url.value='';info.textContent='✅ تم تجهيز الصورة بنجاح. اضغط حفظ ونشر لإظهارها للزوار.';redraw()}).catch(e=>{info.textContent='تعذر تجهيز الصورة: '+e.message;throw e});
+ });
+ clear.addEventListener('click',()=>{input.value='';url.value='';chosenPhoto='';photoPromise=Promise.resolve();info.textContent='تم إزالة الصورة من المحرر؛ اضغط حفظ ونشر لتأكيد الإزالة.';redraw()});
+ redraw();host.append(box)
+}
+async function compressPhoto(file){
+ const source=URL.createObjectURL(file);
+ try{
+  const img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('ملف الصورة غير صالح.'));img.src=source});
+  if(!img.naturalWidth||!img.naturalHeight)throw Error('الصورة فارغة');
+  const canvas=document.createElement('canvas');
+  const scale=Math.min(1,640/Math.max(img.naturalWidth,img.naturalHeight));
+  canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+  canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+  const ctx=canvas.getContext('2d');if(!ctx)throw Error('المتصفح لا يدعم معالجة الصور');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  let encoded='';
+  for(const quality of [.75,.60,.45,.30,.2]){
+   encoded=canvas.toDataURL('image/webp',quality);
+   if(encoded.startsWith('data:image/webp')&&encoded.length<48000)return encoded;
+  }
+  if(encoded.length>48000)throw Error('الصورة تحتوي على تفاصيل كثيرة؛ استخدم صورة أصغر أو رابطًا مباشرًا لها.');
+  return encoded
+ }finally{URL.revokeObjectURL(source)}
+}
+function photoValue(){
+ const url=el('photo-url')?.value.trim()||'';
+ const value=url||chosenPhoto||'';
+ if(value&&!/^https:\/\/[^ <>]+$/i.test(value)&&!/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(value))throw Error('الصورة تحتاج رابط HTTPS أو ملف صورة صالح.');
+ return value
+}
+
 function editItem(i){
  if(!token)return;editingIndex=i;
  if(sections[section].complex){openComplexEditor(i);return}
@@ -165,11 +220,13 @@ function editItem(i){
  if(key==='title')input.required=true;
  div.append(label,input);host.append(div)
  }
+ photoEditor(host,item.imageUrl||'');
  el('editorView').hidden=false;el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
 function readForm(){
  if(sections[section].complex)return readComplexForm();
  const result={};for(const [key] of sections[section].fields){const input=el('field-'+key);const value=input.value.trim();if(input.type==='url'&&value&&!/^https:\/\//i.test(value))throw Error('الروابط يجب أن تبدأ بـ https://');result[key]=value}
+ result.imageUrl=photoValue();
  result.id=editingIndex>=0?(entries[editingIndex].id||String(editingIndex)):('siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8));
  if(section==='lessons'){result.options=entries[editingIndex]?.options||['','',''];result.correct=entries[editingIndex]?.correct??0}
  return {...(editingIndex>=0?entries[editingIndex]:{}),...result}
@@ -236,6 +293,7 @@ async function openComplexEditor(i){
  if(Array.isArray(obj)){
   answerForm(host,'quiz',obj[0],obj[1],obj[2],obj[3]);
  }else for(const [key,value] of Object.entries(obj)){
+  if(key==='imageUrl')continue;
   if(section==='journey'&&['q','a','correct','explain'].includes(key))continue;
   if(key==='quiz'){answerForm(host,'quiz',value.q,value.a,value.correct,value.explain);continue}
   if(key==='position'){field(host,'position-top','الموضع من أعلى الخريطة (مثال: 20%)',value.top);field(host,'position-left','الموضع من اليسار (مثال: 45%)',value.left);continue}
@@ -248,6 +306,7 @@ async function openComplexEditor(i){
   field(host,key,captions[key]||key,value,typeof value==='number'?'number':['text','summary','guideLine','desc','quote'].includes(key)?'long':'text',key==='id'&&i>=0)
  }
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
+ photoEditor(host,obj.imageUrl||'');
  el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
  el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
@@ -282,6 +341,7 @@ function readComplexForm(){
   }else obj[key]=typeof value==='number'?Number(input.value):input.value.trim()
  }
  if(section==='journey'){const x=readAnswers('journey');obj.q=x.q;obj.a=x.a;obj.correct=x.correct;obj.explain=x.explain}
+ obj.imageUrl=photoValue();
  return validateCMSItem(obj)
 }
 async function save(e){
@@ -289,6 +349,7 @@ async function save(e){
  const btn=el('saveButton');if(btn.disabled)return;btn.disabled=true;btn.textContent='⏳ جارٍ الحفظ...';
  msg('editorStatus','جارٍ الحفظ...',false);
  try{
+ await photoPromise;
  const record=readForm();const next=[...entries];const isNew=editingIndex<0;
  if(isNew)next.push(record);else next[editingIndex]=record;
  await cloudWrite(section,next);entries=next;if(isNew)editingIndex=entries.length-1;
