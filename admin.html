@@ -79,6 +79,7 @@ lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط ا
 works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
 jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]},
 page_config:{name:'🛠 إعدادات جميع صفحات المنصة',hint:'عدّل عنوان أي صفحة واسمها في القائمة والوصف وصورتها، وأضف بطاقات نصية وصورية أسفل مقدمتها. تشمل الأقسام الأربعة عشر.',fields:[['navLabel','الاسم في القائمة الرئيسية','text'],['tag','شارة الصفحة','text'],['title','العنوان الرئيسي للصفحة','text'],['description','وصف الصفحة','textarea'],['sourceNote','المصدر أو الملاحظة المرجعية','textarea']]},
+home_features:{name:'🏠 أيقونات وبطاقات الصفحة الرئيسية',hint:'تعديل أيقونة كل بطاقة وصورتها وعنوانها ووصفها ورابط انتقالها إلى أحد أقسام المنصة.',fields:[['title','اسم البطاقة','text'],['description','الوصف المختصر','textarea'],['emoji','أيقونة البطاقة (رمز صغير)','text'],['page','القسم الذي تفتحه البطاقة','text']]},
 ask_faq:{name:'🤖 أسئلة وإجابات اسأل سراج',hint:'أضف أسئلة موثقة وإجاباتها وصورتها ورابط المصدر، لتظهر في المساعد المعرفي.',fields:[['title','السؤال','text'],['body','الإجابة','textarea'],['source','اسم المصدر','text'],['url','رابط المصدر','url']]},
 jaalan_landmarks:{name:'📍 معالم جعلان وتفاصيلها',hint:'تحرير صور وحقائق ومعالم جعلان بني بوحسن الأصلية.',complex:true},
 museum:{name:'🏛 المتحف الذكي',hint:'تحرير قاعات المتحف وأسئلتها وعناصرها، بما فيها القوائم والأسئلة المركبة.',complex:true},
@@ -140,7 +141,7 @@ async function login(e){
 }
 function logout(){token='';entries=[];closeDrawer();el('sirajSiteFrame').src='about:blank';document.body.classList.remove('siraj-manager');el('loginView').hidden=false;el('adminView').hidden=true;el('editorView').hidden=true;el('password').value='';msg('loginMessage','تم تسجيل الخروج.',false);history.replaceState(null,'','#login')}
 function renderTabs(){el('sectionsNav').replaceChildren();for(const [key,detail] of Object.entries(sections)){const btn=document.createElement('button');btn.className='btn secondary'+(key===section?' active':'');btn.textContent=detail.name;btn.type='button';btn.addEventListener('click',()=>selectSection(key));el('sectionsNav').append(btn)}}
-const seededSections=new Set(['articles','videos','lessons','museum','figures','monuments','discover','journey','quiz','page_config','jaalan_landmarks']);
+const seededSections=new Set(['articles','videos','lessons','museum','figures','monuments','discover','journey','quiz','page_config','jaalan_landmarks','home_features']);
 async function selectSection(name){
  if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();el('addButton').disabled=true;
  el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=true;
@@ -468,7 +469,7 @@ async function deleteItem(i){
 }
 async function importStarter(){if(!token||entries.length)return;
 if(!confirm('سيتم نشر محتوى النسخة الحالية في هذا القسم لجميع الزوار. بعضه تجريبي وغير معتمد. هل تريد الاستمرار؟'))return;
-try{const r=await fetch(['page_config','jaalan_landmarks'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=section==='page_config';msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+explainCloudError(e,section),true)}
+try{const r=await fetch(['page_config','jaalan_landmarks','home_features'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=section==='page_config';msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+explainCloudError(e,section),true)}
 }
 el('seedButton').addEventListener('click',importStarter);
 
@@ -508,6 +509,18 @@ async function manageCurrent(action='manage',identity=null,explicitKey=null){
  if(action==='edit')editItem(i);else if(action==='delete')await deleteItem(i)
 }
 
+
+async function manageHomeFeature(identity=null,action='manage'){
+ if(!token)return;
+ showDrawer();await selectSection('home_features');
+ if(!(await ensureBaseContent()))return;
+ if(action==='manage')return;
+ if(action==='add'){editItem(-1);return}
+ const idx=indexFor(identity);
+ if(idx<0){msg('adminMessage','لم يتم العثور على بطاقة الرئيسية المطلوبة.',true);return}
+ if(action==='edit')editItem(idx);else if(action==='delete')await deleteItem(idx)
+}
+
 async function managePageSettings(pageId){
  if(!token)return;
  const key=pageId||activePage();
@@ -534,6 +547,7 @@ function enhanceSameSite(){
   if(top&&!top.querySelector('.siraj-admin-top')){
    const bar=doc.createElement('div');bar.className='siraj-admin-top';
    const editPage=doc.createElement('button');editPage.type='button';editPage.textContent='🖼️ تعديل بيانات الصفحة وصورها';editPage.onclick=()=>managePageSettings(page);bar.append(editPage);
+   if(page==='home'){const tiles=doc.createElement('button');tiles.type='button';tiles.textContent='✏️ تعديل صور وأيقونات بطاقات الرئيسية';tiles.onclick=()=>manageHomeFeature();bar.append(tiles)}
    for(const [name,kind] of [['＋ إضافة محتوى','add'],['✎ تعديل وحذف','manage']]){
     if(key!=='page_config'){const b=doc.createElement('button');b.textContent=name;b.type='button';b.onclick=()=>manageCurrent(kind,null,key);bar.append(b)}
    }
@@ -558,6 +572,16 @@ function enhanceSameSite(){
    }
    card.append(bar)
   });
+  if(page==='home'){
+   root.querySelectorAll('#features .feature').forEach(card=>{
+    if(card.dataset.sirajHomeEdit)return;card.dataset.sirajHomeEdit='yes';
+    const cardName=card.querySelector('h3')?.textContent.trim();
+    const bar=doc.createElement('div');bar.className='siraj-admin-tools';
+    const edit=doc.createElement('button');edit.type='button';edit.textContent='✏️ تعديل الصورة والبيانات';
+    edit.onclick=e=>{e.stopPropagation();manageHomeFeature(card.dataset.sirajTarget||cardName,'edit')};
+    bar.append(edit);card.append(bar);
+   })
+  }
   if(key==='discover'){
    const detail=root.querySelector('#discoverDetail'),name=detail?.querySelector('.discover-hero h2')?.textContent.trim();
    if(detail&&name&&!detail.querySelector('.siraj-admin-tools')){
