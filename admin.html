@@ -88,6 +88,14 @@ let token='',section='articles',entries=[],editingIndex=-1,busy=false;
 const ready=!!(config.apiKey&&config.projectId&&config.adminEmail&&config.adminUsername);
 el('setupHint').hidden=ready;
 function msg(id,value,isError){const e=el(id);e.textContent=value;e.className=isError?'error':'ok'}
+function explainCloudError(error,sectionName){
+ const raw=String(error?.message||error||'خطأ غير معروف');
+ if(error?.code===403||/permission.denied|missing or insufficient permissions|PERMISSION_DENIED/i.test(raw)){
+  return 'رفض Firebase العملية لقواعد الصلاحيات. افتح Firebase → Firestore → Rules وانشر النسخة المحدّثة من firestore.rules في GitHub. تأكد أن قسم '+(sectionName||'museum')+' مذكور في قائمتي read و create/update، وأن مستند admins/{UID} للمسؤول يحوي active=true من نوع Boolean. تحديث GitHub لا ينشر قواعد Firebase تلقائيًا.';
+ }
+ if(error?.code===401||/invalid.id.token|token.expired/i.test(raw))return 'انتهت صلاحية تسجيل الدخول. سجّل الخروج ثم الدخول من جديد.';
+ return raw;
+}
 function endpoint(path){return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(config.projectId)+'/databases/(default)/documents/'+path}
 async function http(url,options){
  const r=await fetch(url,options||{});
@@ -131,7 +139,7 @@ async function selectSection(name){
  if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();el('addButton').disabled=true;
  el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=true;
  msg('adminMessage','جارٍ تحميل البيانات...',false);
- try{entries=await cloudRead(name);renderItems();el('seedButton').hidden=!seededSections.has(name)||entries.length>0;el('addButton').disabled=seededSections.has(name)&&entries.length===0;msg('adminMessage',entries.length?'عدد العناصر: '+entries.length:seededSections.has(name)?'المحتوى الأصلي ظاهر للزوار. اضغط «استيراد محتوى النسخة الحالية» أولاً لحفظه في قاعدة البيانات، ثم أضف أو عدّل أو احذف.':'لا يوجد محتوى منشور؛ يمكنك إضافة أول عنصر.',false)}catch(e){entries=[];renderItems();el('seedButton').hidden=true;msg('adminMessage','تعذّر تحميل البيانات: '+e.message,true)}
+ try{entries=await cloudRead(name);renderItems();el('seedButton').hidden=!seededSections.has(name)||entries.length>0;el('addButton').disabled=seededSections.has(name)&&entries.length===0;msg('adminMessage',entries.length?'عدد العناصر: '+entries.length:seededSections.has(name)?'المحتوى الأصلي ظاهر للزوار. اضغط «استيراد محتوى النسخة الحالية» أولاً لحفظه في قاعدة البيانات، ثم أضف أو عدّل أو احذف.':'لا يوجد محتوى منشور؛ يمكنك إضافة أول عنصر.',false)}catch(e){entries=[];renderItems();el('seedButton').hidden=true;msg('adminMessage','تعذّر تحميل البيانات: '+explainCloudError(e,section),true)}
 }
 function renderItems(){
  const host=el('itemsList');host.replaceChildren();
@@ -245,16 +253,16 @@ async function save(e){
  e.preventDefault();if(!token)return;const btn=el('saveButton');btn.disabled=true;try{
  const record=readForm();const next=[...entries];if(editingIndex<0)next.push(record);else next[editingIndex]=record;
  await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حفظ المحتوى ونشره في قاعدة البيانات.',false);refreshManagerSite()
- }catch(err){msg('adminMessage','فشل الحفظ: '+err.message,true)}
+ }catch(err){msg('adminMessage','فشل الحفظ: '+explainCloudError(err,section),true)}
  finally{btn.disabled=false}
 }
 async function deleteItem(i){
  if(!token||!confirm('هل تريد حذف هذا العنصر من المحتوى المنشور لجميع الزوار؟'))return;
- try{const next=entries.filter((_,n)=>n!==i);await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حذف العنصر من المحتوى المنشور.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذّر الحذف: '+e.message,true)}
+ try{const next=entries.filter((_,n)=>n!==i);await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حذف العنصر من المحتوى المنشور.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذّر الحذف: '+explainCloudError(e,section),true)}
 }
 async function importStarter(){if(!token||entries.length)return;
 if(!confirm('سيتم نشر محتوى النسخة الحالية في هذا القسم لجميع الزوار. بعضه تجريبي وغير معتمد. هل تريد الاستمرار؟'))return;
-try{const r=await fetch(sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=false;msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+e.message,true)}
+try{const r=await fetch(sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=false;msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+explainCloudError(e,section),true)}
 }
 el('seedButton').addEventListener('click',importStarter);
 
@@ -275,7 +283,7 @@ async function ensureBaseContent(){
  if(!Array.isArray(rows))throw Error('محتوى القسم غير متاح');
  await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=false;
  msg('adminMessage','المحتوى الحالي محفوظ. يمكنك التعديل الآن.',false);return true
- }catch(e){msg('adminMessage','لم يتم نسخ المحتوى: '+e.message,true);return false}
+ }catch(e){msg('adminMessage','لم يتم نسخ المحتوى: '+explainCloudError(e,section),true);return false}
 }
 function indexFor(identity){
  if(typeof identity==='number')return identity>=0&&identity<entries.length?identity:-1;
