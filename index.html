@@ -74,6 +74,7 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 #page-jaalan .jaalan-media-add,
 #page-jaalan .jaalan-media-item > button.btn.secondary.small
 {display:none!important}
+.siraj-feature-photo{display:block;width:100%;height:100%;max-height:165px;object-fit:contain;border-radius:14px}.feature:has(.siraj-feature-photo) .icon{font-size:initial;overflow:hidden}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script><style id="jaalan-media-style">
 .jaalan-media-section{margin-top:42px}.jaalan-media-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.jaalan-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.jaalan-media-item{overflow:hidden}.jaalan-media-item h3{color:var(--wine);margin:12px 0 4px}.jaalan-media-item p{font-size:13px;line-height:1.8;color:var(--muted)}.jaalan-media-item video,.jaalan-media-item audio{width:100%;max-height:260px;border-radius:12px;background:#331a25}.jaalan-media-item a{color:var(--wine);font-weight:bold;overflow-wrap:anywhere}.jaalan-media-item .media-icon{font-size:43px;padding:22px;text-align:center;background:#f7f1eb;border-radius:14px}.jaalan-media-add{margin-top:23px}.jaalan-media-add summary{font-weight:900;cursor:pointer;color:var(--wine);font-size:18px}.jaalan-media-form{display:grid;gap:14px;padding-top:16px}.jaalan-media-form label{display:grid;gap:6px;font-weight:700;color:var(--wine)}.jaalan-media-form input,.jaalan-media-form select,.jaalan-media-form textarea{width:100%;border:1px solid #d7c5c8;border-radius:10px;padding:11px;color:#263035;background:#fff}.jaalan-media-form .btn{justify-self:start}.jaalan-media-note{font-size:12px;line-height:1.8;color:#74655e;background:#fff7e7;border-radius:12px;padding:12px}
@@ -898,6 +899,26 @@ function renderSirajFAQ(){
   mount.append(card)
  }
 }
+
+function renderHomeTiles(items){
+ const mount=document.getElementById('features');if(!mount||!Array.isArray(items))return;
+ mount.replaceChildren();
+ const safePage=/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|dashboard)$/;
+ for(const item of items.slice(0,45)){
+  if(!item||typeof item.title!=='string')continue;
+  const target=safePage.test(item.page||'')?item.page:'home';
+  const card=document.createElement('div');card.className='card feature';card.dataset.sirajTarget=item.id||target;
+  const art=document.createElement('div');art.className='icon';
+  const url=safeAdminImage(item.imageUrl);
+  if(url){const image=document.createElement('img');image.alt=item.title;image.loading='lazy';image.src=url;image.className='siraj-feature-photo';art.append(image)}
+  else art.textContent=item.emoji||'📖';
+  const h=document.createElement('h3');h.textContent=item.title;
+  const p=document.createElement('p');p.textContent=item.description||'';
+  const button=document.createElement('button');button.className='linkbtn';button.textContent='اكتشف الآن ←';button.type='button';button.onclick=()=>showPage(target);
+  card.append(art,h,p,button);mount.append(card)
+ }
+}
+
 function applyPageSettings(settings){
  if(!Array.isArray(settings))return;
  for(const setting of settings){
@@ -943,7 +964,7 @@ function applyPageSettings(settings){
 
 async function refreshPublic(){
  if(!c.projectId)return;
- const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud,pageSettings,faqRows,jaalanData]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks'].map(loadContent));
+ const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud,pageSettings,faqRows,jaalanData,homeTiles]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks','home_features'].map(loadContent));
  try{
  if(articles!==null){state.articles=articles.filter(x=>x&&typeof x.title==='string');renderArticles();updateStats()}
  if(videos!==null){state.videos=videos.filter(x=>x&&typeof x.title==='string');renderVideos();updateStats()}
@@ -962,6 +983,7 @@ async function refreshPublic(){
  if(jaalanData!==null){const rows=jaalanData.filter(x=>x&&typeof x.title==='string'&&Array.isArray(x.facts));jaalanLandmarks.splice(0,jaalanLandmarks.length,...rows);renderJaalan()}
  if(faqRows!==null){sirajFaqRows=faqRows.filter(x=>x&&typeof x.title==='string'&&typeof x.body==='string');renderSirajFAQ();initSirajChat()}
  if(pageSettings!==null)applyPageSettings(pageSettings);
+ if(homeTiles!==null)renderHomeTiles(homeTiles);
  if(quizCloud!==null){const rows=quizCloud.filter(x=>Array.isArray(x)&&Array.isArray(x[1])&&Number.isInteger(x[2]));questions.splice(0,questions.length,...rows);quizIdx=0;quizPts=0;quizAnswered=false;renderQuiz()}
  }catch(e){console.warn('Siraj cloud display:',e.message)}
 }
