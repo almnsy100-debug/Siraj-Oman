@@ -24,7 +24,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 @media(max-width:700px){#sirajDock{top:79px;left:5px}#sirajDock button{padding:6px 9px;font-size:12px}#sirajDrawer{padding:7px}}
 
 #editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
-#editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}
+#editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}#editorFields .siraj-photo img[hidden]{display:none!important}
 </style>
 <script src="./siraj-config.js"></script>
 </head>
@@ -197,6 +197,7 @@ async function compressPhoto(file){
    encoded=canvas.toDataURL('image/webp',quality);
    if(encoded.startsWith('data:image/webp')&&encoded.length<48000)return encoded;
   }
+  if(!encoded.startsWith('data:image/webp'))throw Error('المتصفح لا يدعم ضغط WebP؛ استخدم رابط صورة بدلًا من الملف.');
   if(encoded.length>48000)throw Error('الصورة تحتوي على تفاصيل كثيرة؛ استخدم صورة أصغر أو رابطًا مباشرًا لها.');
   return encoded
  }finally{URL.revokeObjectURL(source)}
@@ -306,7 +307,7 @@ async function openComplexEditor(i){
   field(host,key,captions[key]||key,value,typeof value==='number'?'number':['text','summary','guideLine','desc','quote'].includes(key)?'long':'text',key==='id'&&i>=0)
  }
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
- photoEditor(host,obj.imageUrl||'');
+ if(section!=='quiz')photoEditor(host,obj.imageUrl||'');
  el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
  el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
