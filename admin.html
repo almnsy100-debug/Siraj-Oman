@@ -210,7 +210,7 @@ function answerForm(host,prefix,q,options,correct,explanation){
  const wrap=document.createElement('div');wrap.className='field';const label=document.createElement('label');label.textContent='الإجابة الصحيحة';label.htmlFor=select.id;
  wrap.append(label,select);box.append(wrap);
  function update(){
-  const chosen=Number(select.value);
+  const chosen=select.options.length?Number(select.value):Number(correct)||0;
   const rows=opts.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   select.replaceChildren();
   rows.forEach((txt,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent='الخيار '+(i+1)+': '+txt.slice(0,60);select.append(o)});
@@ -236,7 +236,7 @@ async function openComplexEditor(i){
  if(Array.isArray(obj)){
   answerForm(host,'quiz',obj[0],obj[1],obj[2],obj[3]);
  }else for(const [key,value] of Object.entries(obj)){
-  if(section==='journey'&&['a','correct','explain'].includes(key))continue;
+  if(section==='journey'&&['q','a','correct','explain'].includes(key))continue;
   if(key==='quiz'){answerForm(host,'quiz',value.q,value.a,value.correct,value.explain);continue}
   if(key==='position'){field(host,'position-top','الموضع من أعلى الخريطة (مثال: 20%)',value.top);field(host,'position-left','الموضع من اليسار (مثال: 45%)',value.left);continue}
   if(Array.isArray(value)){
