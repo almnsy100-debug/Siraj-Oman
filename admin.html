@@ -25,6 +25,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 
 #editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
 #editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}#editorFields .siraj-photo img[hidden]{display:none!important}
+.siraj-multi-quiz{border:2px solid #ead2ad;border-radius:14px;padding:13px;background:#fffdf8;margin:16px 0}.siraj-one-question{border:1px solid #e2d7cb;border-radius:12px;background:white;padding:12px;margin:12px 0}.siraj-quiz-bar{display:flex;align-items:center;justify-content:space-between;gap:9px}.siraj-one-question .siraj-group{margin:10px 0}.siraj-multi-quiz h3{color:#711e30;margin:5px 0 9px}
 </style>
 <script src="./siraj-config.js"></script>
 </head>
@@ -72,7 +73,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 'use strict';
 const config=window.SIRAJ_CLOUD_CONFIG||{};
 const sections={
-articles:{name:'المقالات والصحيفة',hint:'مقالات موثقة تُعرض في قسم الصحيفة.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['author','فريق الإعداد','text'],['emoji','رمز تعبيري','text'],['body','نص المقال','textarea']]},
+articles:{name:'المقالات والصحيفة',hint:'مقالات موثقة تُعرض في قسم الصحيفة.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['author','فريق الإعداد','text'],['body','نص المقال','textarea']]},
 videos:{name:'مكتبة الفيديو',hint:'أضف عنوان العمل ورابط فيديو منشور عبر HTTPS.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['desc','الوصف','textarea'],['url','رابط الفيديو','url']]},
 lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط التعليمية في قسم الدروس. يجب كتابة روابط HTTPS صالحة.',fields:[['title','عنوان الدرس','text'],['subject','المادة (social / science / arabic)','text'],['grade','الصف','text'],['term','الفصل','text'],['unit','الوحدة','text'],['desc','وصف الدرس','textarea'],['presentation','رابط العرض','url'],['video','رابط الفيديو','url'],['booklet','رابط الكتيب','url'],['gameUrl','رابط اللعبة','url']]},
 works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
@@ -275,9 +276,46 @@ function answerForm(host,prefix,q,options,correct,explanation){
   select.value=String(Number.isInteger(chosen)&&chosen>=0&&chosen<rows.length?chosen:Number(correct)||0);
  }
  update();opts.addEventListener('input',update);
- field(box,prefix+'-explain','تفسير الإجابة الصحيحة',explanation,'long');
+ field(box,prefix+'-explain','الشرح بعد الإجابة (يظهر عند الإجابة الصحيحة والخاطئة)',explanation,'long');
  host.append(box)
 }
+
+function multiQuestionEditor(host,original){
+ const box=document.createElement('section');box.id='sirajQuestionsEditor';box.className='siraj-multi-quiz';
+ const heading=document.createElement('h3');heading.textContent='🎯 الأسئلة التفاعلية';box.append(heading);
+ const info=document.createElement('p');info.className='muted';
+ info.textContent='يمكنك إضافة عدة أسئلة. يظهر شرح كل سؤال للطالب بعد الإجابة، سواء اختار إجابة صحيحة أو خاطئة.';
+ box.append(info);
+ const list=document.createElement('div');list.id='sirajQuestionsList';box.append(list);
+ let serial=0;
+ function addQuestion(value={q:'',a:['',''],correct:0,explain:''}){
+  const parent=document.createElement('div');parent.className='siraj-one-question';
+  const prefix='multi-'+serial++;parent.dataset.prefix=prefix;
+  const bar=document.createElement('div');bar.className='siraj-quiz-bar';
+  const title=document.createElement('strong');title.textContent='سؤال جديد';
+  const remove=document.createElement('button');remove.type='button';remove.className='btn secondary';remove.textContent='🗑 حذف السؤال';
+  remove.addEventListener('click',()=>{
+   if(list.children.length===1){msg('editorStatus','يجب أن تحتوي القاعة على سؤال واحد على الأقل.',true);return}
+   parent.remove();updateNumbers()
+  });
+  bar.append(title,remove);parent.append(bar);
+  answerForm(parent,prefix,value.q,value.a,value.correct,value.explain);
+  list.append(parent);updateNumbers();
+ }
+ function updateNumbers(){[...list.children].forEach((p,i)=>{p.querySelector('.siraj-quiz-bar strong').textContent='السؤال '+(i+1)})}
+ const add=document.createElement('button');add.type='button';add.className='btn secondary';add.textContent='＋ إضافة سؤال آخر';add.addEventListener('click',()=>{addQuestion();add.scrollIntoView({behavior:'smooth',block:'nearest'})});
+ const rows=Array.isArray(original)&&original.length?original:[{q:'',a:['',''],correct:0,explain:''}];
+ rows.forEach(addQuestion);box.append(add);host.append(box)
+}
+function readMultiQuestions(){
+ const list=el('sirajQuestionsList');
+ if(!list||!list.children.length)throw Error('أضف سؤالًا واحدًا على الأقل.');
+ return [...list.children].map((p,i)=>{
+  try{return readAnswers(p.dataset.prefix)}
+  catch(e){throw Error('السؤال '+(i+1)+': '+e.message)}
+ })
+}
+
 async function openComplexEditor(i){
  if(!token)return;
  editingIndex=i;complexSample=null;
@@ -294,9 +332,9 @@ async function openComplexEditor(i){
  if(Array.isArray(obj)){
   answerForm(host,'quiz',obj[0],obj[1],obj[2],obj[3]);
  }else for(const [key,value] of Object.entries(obj)){
-  if(key==='imageUrl')continue;
+  if(key==='imageUrl'||key==='emoji'||key==='scene'||key==='guideEmoji'||key==='quizzes')continue;
   if(section==='journey'&&['q','a','correct','explain'].includes(key))continue;
-  if(key==='quiz'){answerForm(host,'quiz',value.q,value.a,value.correct,value.explain);continue}
+  if(key==='quiz')continue;
   if(key==='position'){field(host,'position-top','الموضع من أعلى الخريطة (مثال: 20%)',value.top);field(host,'position-left','الموضع من اليسار (مثال: 45%)',value.left);continue}
   if(Array.isArray(value)){
    const rows=key==='facts'&&value.some(Array.isArray)?value.map(x=>x.join(' | ')):value;
@@ -306,6 +344,7 @@ async function openComplexEditor(i){
   }
   field(host,key,captions[key]||key,value,typeof value==='number'?'number':['text','summary','guideLine','desc','quote'].includes(key)?'long':'text',key==='id'&&i>=0)
  }
+ if(obj.quiz||Array.isArray(obj.quizzes))multiQuestionEditor(host,Array.isArray(obj.quizzes)&&obj.quizzes.length?obj.quizzes:obj.quiz?[obj.quiz]:[]);
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
  if(section!=='quiz')photoEditor(host,obj.imageUrl||'');
  el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
@@ -324,6 +363,7 @@ function validateCMSItem(obj){
  if(scan.some(v=>/<\s*\/?\s*[a-z]|javascript:|onerror\s*=/i.test(v)))throw Error('نص غير مسموح به.');
  if(section==='quiz'){if(!obj[0])throw Error('اكتب السؤال.');return obj}
  if(!(obj.title||obj.name))throw Error('العنوان أو الاسم مطلوب.');
+ if(obj.quizzes&&(!Array.isArray(obj.quizzes)||!obj.quizzes.length))throw Error('أضف سؤالًا واحدًا على الأقل.');
  return obj
 }
 function readComplexForm(){
@@ -332,7 +372,7 @@ function readComplexForm(){
  if(!base)throw Error('قالب العنصر غير موجود.');
  const obj=safeValue(base);
  for(const [key,value] of Object.entries(base)){
-  if(key==='quiz'){obj.quiz=readAnswers('quiz');continue}
+  if(key==='quiz'||key==='quizzes')continue
   if(key==='position'){obj.position={...value,top:el('simple-position-top').value.trim(),left:el('simple-position-left').value.trim()};continue}
   if(section==='journey'&&['a','correct','explain'].includes(key))continue;
   const input=el('simple-'+key);if(!input)continue;
@@ -341,6 +381,7 @@ function readComplexForm(){
    obj[key]=key==='facts'&&value.some(Array.isArray)?rows.map(x=>{const p=x.split(/\s*\|\s*/);return[p.shift()||'',p.join(' | ')]}):rows
   }else obj[key]=typeof value==='number'?Number(input.value):input.value.trim()
  }
+ if(el('sirajQuestionsList')){obj.quizzes=readMultiQuestions();obj.quiz=obj.quizzes[0]}
  if(section==='journey'){const x=readAnswers('journey');obj.q=x.q;obj.a=x.a;obj.correct=x.correct;obj.explain=x.explain}
  obj.imageUrl=photoValue();
  return validateCMSItem(obj)
