@@ -548,6 +548,7 @@ function enhanceSameSite(){
    const bar=doc.createElement('div');bar.className='siraj-admin-top';
    const editPage=doc.createElement('button');editPage.type='button';editPage.textContent='🖼️ تعديل بيانات الصفحة وصورها';editPage.onclick=()=>managePageSettings(page);bar.append(editPage);
    if(page==='home'){const tiles=doc.createElement('button');tiles.type='button';tiles.textContent='✏️ تعديل صور وأيقونات بطاقات الرئيسية';tiles.onclick=()=>manageHomeFeature();bar.append(tiles)}
+   if(page==='jaalan'){const media=doc.createElement('button');media.type='button';media.textContent='🎬 تحرير فيديوهات وبودكاست جعلان';media.onclick=()=>manageCurrent('manage',null,'jaalan_media');bar.append(media)}
    for(const [name,kind] of [['＋ إضافة محتوى','add'],['✎ تعديل وحذف','manage']]){
     if(key!=='page_config'){const b=doc.createElement('button');b.textContent=name;b.type='button';b.onclick=()=>manageCurrent(kind,null,key);bar.append(b)}
    }
