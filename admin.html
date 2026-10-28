@@ -75,6 +75,7 @@ const config=window.SIRAJ_CLOUD_CONFIG||{};
 const sections={
 articles:{name:'المقالات والصحيفة',hint:'مقالات موثقة تُعرض في قسم الصحيفة.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['author','فريق الإعداد','text'],['body','نص المقال','textarea']]},
 videos:{name:'مكتبة الفيديو',hint:'أضف عنوان العمل ورابط فيديو منشور عبر HTTPS.',fields:[['title','العنوان','text'],['category','التصنيف','text'],['desc','الوصف','textarea'],['url','رابط الفيديو','url']]},
+lesson_subjects:{name:'📚 إدارة المواد الدراسية',hint:'أضف مواد أخرى مثل الرياضيات واللغة الإنجليزية والتربية الإسلامية والمهارات الحياتية.',fields:[['name','اسم المادة الدراسية','text'],['icon','أيقونة المادة','text'],['desc','وصف المادة','textarea']]},
 lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط التعليمية في قسم الدروس. يجب كتابة روابط HTTPS صالحة.',fields:[['title','عنوان الدرس','text'],['subject','المادة (social / science / arabic)','text'],['grade','الصف','text'],['term','الفصل','text'],['unit','الوحدة','text'],['desc','وصف الدرس','textarea'],['presentation','رابط العرض','url'],['video','رابط الفيديو','url'],['booklet','رابط الكتيب','url'],['gameUrl','رابط اللعبة','url']]},
 works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
 jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]},
@@ -142,9 +143,30 @@ async function login(e){
 }
 function logout(){token='';entries=[];closeDrawer();el('sirajSiteFrame').src='about:blank';document.body.classList.remove('siraj-manager');el('loginView').hidden=false;el('adminView').hidden=true;el('editorView').hidden=true;el('password').value='';msg('loginMessage','تم تسجيل الخروج.',false);history.replaceState(null,'','#login')}
 function renderTabs(){el('sectionsNav').replaceChildren();for(const [key,detail] of Object.entries(sections)){const btn=document.createElement('button');btn.className='btn secondary'+(key===section?' active':'');btn.textContent=detail.name;btn.type='button';btn.addEventListener('click',()=>selectSection(key));el('sectionsNav').append(btn)}}
-const seededSections=new Set(['articles','videos','lessons','museum','figures','monuments','discover','journey','quiz','page_config','jaalan_landmarks','home_features']);
+const seededSections=new Set(['articles','videos','lessons','museum','figures','monuments','discover','journey','quiz','page_config','jaalan_landmarks','home_features','lesson_subjects']);
+
+const defaultSchoolSubjects=[['social','الدراسات الاجتماعية'],['science','العلوم'],['arabic','اللغة العربية']];
+async function loadLessonSubjectChoices(){
+ const fetched=await cloudRead('lesson_subjects');
+ const names=new Map(defaultSchoolSubjects);
+ for(const value of fetched){
+  if(value&&typeof value.id==='string'&&/^[a-z0-9_-]{2,90}$/i.test(value.id)&&typeof value.name==='string'&&value.name.trim())names.set(value.id,value.name.trim())
+ }
+ choices.subject=[...names.entries()]
+}
+async function manageLessonSubjects(action='manage'){
+ if(!token)return;
+ showDrawer();
+ await selectSection('lesson_subjects');
+ if(action==='add'){
+  if(!(await ensureBaseContent()))return;
+  editItem(-1)
+ }
+}
+
 async function selectSection(name){
  if(!token)return;section=name;editingIndex=-1;el('editorView').hidden=true;renderTabs();el('addButton').disabled=true;
+ if(name==='lessons'){try{await loadLessonSubjectChoices()}catch(e){console.warn('Lesson subjects:',e.message)}}
  el('sectionTitle').textContent=sections[name].name;el('sectionHint').textContent=sections[name].hint;el('seedButton').hidden=true;
  msg('adminMessage','جارٍ تحميل البيانات...',false);
  try{entries=await cloudRead(name);renderItems();el('seedButton').hidden=!seededSections.has(name)||entries.length>0;el('addButton').disabled=(seededSections.has(name)&&entries.length===0)||name==='page_config';msg('adminMessage',entries.length?'عدد العناصر: '+entries.length:seededSections.has(name)?'المحتوى الأصلي ظاهر للزوار. اضغط «استيراد محتوى النسخة الحالية» أولاً لحفظه في قاعدة البيانات، ثم أضف أو عدّل أو احذف.':'لا يوجد محتوى منشور؛ يمكنك إضافة أول عنصر.',false)}catch(e){entries=[];renderItems();el('seedButton').hidden=true;msg('adminMessage','تعذّر تحميل البيانات: '+explainCloudError(e,section),true)}
@@ -327,7 +349,7 @@ function editItem(i){
  const div=document.createElement('div');div.className='field';const label=document.createElement('label');label.textContent=title;label.htmlFor='field-'+key;let input;
  if(type==='textarea'){input=document.createElement('textarea')}else if(choices[key]&&(key!=='type'||section==='jaalan_media')&&(key!=='status'||section==='works')){input=document.createElement('select');for(const [value,labelText] of choices[key]){const opt=document.createElement('option');opt.value=value;opt.textContent=labelText;input.append(opt)}}else{input=document.createElement('input');input.type=type}
  input.id='field-'+key;input.name=key;input.maxLength=type==='textarea'?12000:800;input.value=String(item[key]??'');
- if(key==='title')input.required=true;
+ if(key==='title'||(section==='lesson_subjects'&&key==='name'))input.required=true;
  div.append(label,input);host.append(div)
  }
  photoEditor(host,item.imageUrl||'');
@@ -348,6 +370,10 @@ function readForm(){
  if(section==='page_config')result.blocks=readPageBlocks();
  result.id=editingIndex>=0?(entries[editingIndex].id||String(editingIndex)):('siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8));
  if(section==='page_config'){if(editingIndex<0)throw Error('لا يمكن إنشاء قسم جديد من هذا المحرر.');result.id=entries[editingIndex].id;}
+ if(section==='lesson_subjects'){
+  if(!result.name.trim())throw Error('أدخل اسم المادة الدراسية.');
+  if(entries.some((x,n)=>n!==editingIndex&&x.name?.trim()===result.name.trim()))throw Error('هذه المادة الدراسية موجودة بالفعل.');
+ }
  if(section==='student_projects'){
   for(const key of ['title','targetAudience','url','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة والرابط واسم الطالب والمدرسة.');
   if(!el('projectsConsent')?.checked)throw Error('يرجى التأكد من وجود موافقة المدرسة وولي الأمر على نشر اسم الطالب والمشروع.');
@@ -532,7 +558,7 @@ async function deleteItem(i){
 }
 async function importStarter(){if(!token||entries.length)return;
 if(!confirm('سيتم نشر محتوى النسخة الحالية في هذا القسم لجميع الزوار. بعضه تجريبي وغير معتمد. هل تريد الاستمرار؟'))return;
-try{const r=await fetch(['page_config','jaalan_landmarks','home_features'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=section==='page_config';msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+explainCloudError(e,section),true)}
+try{const r=await fetch(section==='lesson_subjects'?'./lesson-subjects-starter.json':['page_config','jaalan_landmarks','home_features'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json');if(!r.ok)throw Error('تعذر فتح بيانات النسخة الأولية');const data=await r.json();const rows=data[section];if(!Array.isArray(rows))throw Error('القسم غير موجود');await cloudWrite(section,rows);entries=rows;renderItems();el('seedButton').hidden=true;el('addButton').disabled=section==='page_config';msg('adminMessage','تم استيراد المحتوى الحالي إلى قاعدة البيانات بنجاح.',false);refreshManagerSite()}catch(e){msg('adminMessage','تعذر الاستيراد: '+explainCloudError(e,section),true)}
 }
 el('seedButton').addEventListener('click',importStarter);
 
@@ -547,7 +573,7 @@ async function ensureBaseContent(){
  if(entries.length||!seededSections.has(section))return true;
  if(!confirm('قبل أول تعديل: هل تريد حفظ نسخة المحتوى الحالي من هذا القسم في قاعدة البيانات، دون فقدان العناصر الموجودة؟'))return false;
  try{
- const r=await fetch(['page_config','jaalan_landmarks'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json',{cache:'no-store'});
+ const r=await fetch(section==='lesson_subjects'?'./lesson-subjects-starter.json':['page_config','jaalan_landmarks','home_features'].includes(section)?'./page-content-starter.json':sections[section].complex?'./cms-starter.json':'./starter-content.json',{cache:'no-store'});
  if(!r.ok)throw Error('تعذّر الوصول إلى ملف محتوى القسم');
  const data=await r.json(),rows=data[section];
  if(!Array.isArray(rows))throw Error('محتوى القسم غير متاح');
@@ -623,6 +649,7 @@ function enhanceSameSite(){
    const bar=doc.createElement('div');bar.className='siraj-admin-top';
    const editPage=doc.createElement('button');editPage.type='button';editPage.textContent='🖼️ تعديل بيانات الصفحة وصورها';editPage.onclick=()=>managePageSettings(page);bar.append(editPage);
    if(page==='home'){const tiles=doc.createElement('button');tiles.type='button';tiles.textContent='✏️ تعديل صور وأيقونات بطاقات الرئيسية';tiles.onclick=()=>manageHomeFeature();bar.append(tiles)}
+   if(page==='lessons'){const b=doc.createElement('button');b.type='button';b.textContent='＋ إضافة مادة دراسية جديدة';b.onclick=()=>manageLessonSubjects('add');bar.append(b);const m=doc.createElement('button');m.type='button';m.textContent='⚙️ تعديل المواد الدراسية';m.onclick=()=>manageLessonSubjects('manage');bar.append(m)}
    if(page==='jaalan'){const media=doc.createElement('button');media.type='button';media.textContent='🎬 تحرير فيديوهات وبودكاست جعلان';media.onclick=()=>manageCurrent('manage',null,'jaalan_media');bar.append(media)}
    for(const [name,kind] of [['＋ إضافة محتوى','add'],['✎ تعديل وحذف','manage']]){
     if(key!=='page_config'){const b=doc.createElement('button');b.textContent=name;b.type='button';b.onclick=()=>manageCurrent(kind,null,key);bar.append(b)}
