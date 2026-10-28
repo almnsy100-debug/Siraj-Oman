@@ -26,7 +26,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 #editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
 #editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}#editorFields .siraj-photo img[hidden]{display:none!important}
 .siraj-multi-quiz{border:2px solid #ead2ad;border-radius:14px;padding:13px;background:#fffdf8;margin:16px 0}.siraj-one-question{border:1px solid #e2d7cb;border-radius:12px;background:white;padding:12px;margin:12px 0}.siraj-quiz-bar{display:flex;align-items:center;justify-content:space-between;gap:9px}.siraj-one-question .siraj-group{margin:10px 0}.siraj-multi-quiz h3{color:#711e30;margin:5px 0 9px}
-</style>
+.siraj-named-links{padding:14px;margin-top:18px;border:1px solid #d9b98e;background:#fff9f0;border-radius:14px}.siraj-named-links h3{color:#711e30;margin:4px 0}.siraj-named-link{margin:12px 0;background:white}.siraj-named-link input{width:100%}</style>
 <script src="./siraj-config.js"></script>
 </head>
 <body>
@@ -78,8 +78,9 @@ videos:{name:'مكتبة الفيديو',hint:'أضف عنوان العمل ور
 lessons:{name:'الدروس التعليمية',hint:'تظهر الروابط التعليمية في قسم الدروس. يجب كتابة روابط HTTPS صالحة.',fields:[['title','عنوان الدرس','text'],['subject','المادة (social / science / arabic)','text'],['grade','الصف','text'],['term','الفصل','text'],['unit','الوحدة','text'],['desc','وصف الدرس','textarea'],['presentation','رابط العرض','url'],['video','رابط الفيديو','url'],['booklet','رابط الكتيب','url'],['gameUrl','رابط اللعبة','url']]},
 works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق التعليمية دون نشر بيانات الطلبة الخاصة.',fields:[['title','عنوان العمل','text'],['type','نوع العمل','text'],['team','اسم الفريق','text'],['summary','وصف المنتج','textarea'],['source','المصدر الموسوعي','url'],['link','رابط العمل','url'],['status','حالة العمل','text']]},
 jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]},
-page_config:{name:'🛠 إعدادات جميع صفحات المنصة',hint:'عدّل عنوان أي صفحة واسمها في القائمة والوصف وصورتها، وأضف بطاقات نصية وصورية أسفل مقدمتها. تشمل الأقسام الأربعة عشر.',fields:[['navLabel','الاسم في القائمة الرئيسية','text'],['tag','شارة الصفحة','text'],['title','العنوان الرئيسي للصفحة','text'],['description','وصف الصفحة','textarea'],['sourceNote','المصدر أو الملاحظة المرجعية','textarea']]},
+page_config:{name:'🛠 إعدادات جميع صفحات المنصة',hint:'عدّل عنوان أي صفحة واسمها في القائمة والوصف وصورتها، وأضف بطاقات نصية وصورية أسفل مقدمتها. تشمل جميع أقسام المنصة.',fields:[['navLabel','الاسم في القائمة الرئيسية','text'],['tag','شارة الصفحة','text'],['title','العنوان الرئيسي للصفحة','text'],['description','وصف الصفحة','textarea'],['sourceNote','المصدر أو الملاحظة المرجعية','textarea']]},
 home_features:{name:'🏠 أيقونات وبطاقات الصفحة الرئيسية',hint:'تعديل أيقونة كل بطاقة وصورتها وعنوانها ووصفها ورابط انتقالها إلى أحد أقسام المنصة.',fields:[['title','اسم البطاقة','text'],['description','الوصف المختصر','textarea'],['emoji','أيقونة البطاقة (رمز صغير)','text'],['page','القسم الذي تفتحه البطاقة','text']]},
+student_projects:{name:'💡 مشاريع الطلبة',hint:'إضافة مشروع مع صورة وفئة مستهدفة ورابط واسم الطالب والمدرسة. تأكد من موافقة ولي الأمر قبل نشر بيانات القُصّر.',fields:[['title','اسم المشروع','text'],['targetAudience','الفئة المستهدفة','text'],['url','رابط المشروع HTTPS','url'],['studentName','اسم الطالب','text'],['school','اسم المدرسة','text'],['description','نبذة عن المشروع','textarea']]},
 ask_faq:{name:'🤖 أسئلة وإجابات اسأل سراج',hint:'أضف أسئلة موثقة وإجاباتها وصورتها ورابط المصدر، لتظهر في المساعد المعرفي.',fields:[['title','السؤال','text'],['body','الإجابة','textarea'],['source','اسم المصدر','text'],['url','رابط المصدر','url']]},
 jaalan_landmarks:{name:'📍 معالم جعلان وتفاصيلها',hint:'تحرير صور وحقائق ومعالم جعلان بني بوحسن الأصلية.',complex:true},
 museum:{name:'🏛 المتحف الذكي',hint:'تحرير قاعات المتحف وأسئلتها وعناصرها، بما فيها القوائم والأسئلة المركبة.',complex:true},
@@ -215,6 +216,57 @@ function photoValue(){
 }
 
 
+
+/* Repeated named links support images selected from the device or hosted securely. */
+let namedLinkTasks=[];
+function editNamedLinks(host,existing=[]){
+ namedLinkTasks=[];
+ const sectionBox=document.createElement('section');sectionBox.className='siraj-named-links';sectionBox.id='namedLinksEditor';
+ const title=document.createElement('h3');title.textContent='🔗 روابط إضافية بأسماء وصور';sectionBox.append(title);
+ const desc=document.createElement('p');desc.className='muted';desc.textContent='يمكنك إضافة أكثر من رابط؛ كل رابط له اسم وعنوان وصورة اختيارية.';sectionBox.append(desc);
+ const list=document.createElement('div');list.id='namedLinksList';sectionBox.append(list);
+ function addRow(original={}){
+  const card=document.createElement('fieldset');card.className='siraj-group siraj-named-link';
+  const legend=document.createElement('legend');legend.textContent='رابط';card.append(legend);
+  function addInput(text,type,value){
+   const wrap=document.createElement('div');wrap.className='field';const label=document.createElement('label');label.textContent=text;wrap.append(label);
+   const input=document.createElement('input');input.type=type;input.value=value||'';input.maxLength=type==='url'?1800:400;wrap.append(input);card.append(wrap);return input
+  }
+  const name=addInput('اسم الرابط','text',original.title);
+  const url=addInput('عنوان الرابط (https://)','url',original.url);
+  const image=addInput('رابط صورة للرابط (اختياري)','text',original.imageUrl);
+  const label=document.createElement('label');label.textContent='أو اختر صورة من الجهاز';card.append(label);
+  const file=document.createElement('input');file.type='file';file.accept='image/jpeg,image/png,image/webp,image/gif';card.append(file);
+  const status=document.createElement('small');status.className='muted';card.append(status);
+  file.onchange=()=>{
+   const selected=file.files?.[0];if(!selected)return;
+   if(!['image/jpeg','image/png','image/webp','image/gif'].includes(selected.type)||selected.size>5*1024*1024){
+    status.textContent='الحد الأقصى للصورة 5 ميجابايت (JPG / PNG / WebP / GIF).';file.value='';return
+   }
+   status.textContent='جارٍ تجهيز الصورة...';
+   const p=compressPhoto(selected).then(img=>{image.value=img;status.textContent='✅ الصورة جاهزة.'});
+   namedLinkTasks.push(p);p.catch(e=>status.textContent='خطأ في الصورة: '+e.message)
+  };
+  const remove=document.createElement('button');remove.type='button';remove.className='btn secondary';remove.textContent='🗑 حذف هذا الرابط';
+  remove.onclick=()=>card.remove();card.append(remove);
+  card.read=()=>({id:original.id||safeId(),title:name.value.trim(),url:url.value.trim(),imageUrl:image.value.trim()});
+  list.append(card)
+ }
+ (Array.isArray(existing)?existing:[]).forEach(addRow);
+ const add=document.createElement('button');add.type='button';add.className='btn secondary';add.textContent='＋ إضافة رابط جديد';add.onclick=()=>addRow();
+ sectionBox.append(add);host.append(sectionBox)
+}
+function readNamedLinks(){
+ const root=document.getElementById('namedLinksList');if(!root)return [];
+ return [...root.querySelectorAll('.siraj-named-link')].map((node,i)=>{
+  const data=node.read();
+  if(!data.title&&!data.url&&!data.imageUrl)return null;
+  if(!data.title||!/^https:\/\/[^ <>"']+$/i.test(data.url))throw Error('الرابط رقم '+(i+1)+': أدخل اسم الرابط وعنوانًا يبدأ بـ https://');
+  if(data.imageUrl&&!/^https:\/\/[^ <>"']+$/i.test(data.imageUrl)&&!/^data:image\/webp;base64,[a-z0-9+/=]+$/i.test(data.imageUrl))throw Error('صورة الرابط رقم '+(i+1)+' غير صالحة.');
+  return data
+ }).filter(Boolean)
+}
+
 function editPageBlocks(host,blocks,pageId){
  pageBlockPromises=[];
  const area=document.createElement('section');area.id='pageBlocksEditor';area.className='siraj-page-blocks';
@@ -279,13 +331,14 @@ function editItem(i){
  div.append(label,input);host.append(div)
  }
  photoEditor(host,item.imageUrl||'');
+ editNamedLinks(host,item.links||[]);
  if(section==='page_config')editPageBlocks(host,item.blocks||[],item.id);
  el('editorView').hidden=false;el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
 function readForm(){
  if(sections[section].complex)return readComplexForm();
  const result={};for(const [key] of sections[section].fields){const input=el('field-'+key);const value=input.value.trim();if(input.type==='url'&&value&&!/^https:\/\//i.test(value))throw Error('الروابط يجب أن تبدأ بـ https://');result[key]=value}
- result.imageUrl=photoValue();
+ result.imageUrl=photoValue();result.links=readNamedLinks();
  if(section==='page_config')result.blocks=readPageBlocks();
  result.id=editingIndex>=0?(entries[editingIndex].id||String(editingIndex)):('siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8));
  if(section==='page_config'){if(editingIndex<0)throw Error('لا يمكن إنشاء قسم جديد من هذا المحرر.');result.id=entries[editingIndex].id;}
@@ -405,7 +458,7 @@ async function openComplexEditor(i){
  }
  if(obj.quiz||Array.isArray(obj.quizzes))multiQuestionEditor(host,Array.isArray(obj.quizzes)&&obj.quizzes.length?obj.quizzes:obj.quiz?[obj.quiz]:[]);
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
- if(section!=='quiz')photoEditor(host,obj.imageUrl||'');
+ if(section!=='quiz'){photoEditor(host,obj.imageUrl||'');editNamedLinks(host,obj.links||[])}
  el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
  el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
@@ -442,7 +495,7 @@ function readComplexForm(){
  }
  if(el('sirajQuestionsList')){obj.quizzes=readMultiQuestions();obj.quiz=obj.quizzes[0]}
  if(section==='journey'){const x=readAnswers('journey');obj.q=x.q;obj.a=x.a;obj.correct=x.correct;obj.explain=x.explain}
- obj.imageUrl=photoValue();
+ obj.imageUrl=photoValue();obj.links=readNamedLinks();
  return validateCMSItem(obj)
 }
 async function save(e){
@@ -450,7 +503,7 @@ async function save(e){
  const btn=el('saveButton');if(btn.disabled)return;btn.disabled=true;btn.textContent='⏳ جارٍ الحفظ...';
  msg('editorStatus','جارٍ الحفظ...',false);
  try{
- await Promise.all([photoPromise,...pageBlockPromises]);
+ await Promise.all([photoPromise,...pageBlockPromises,...namedLinkTasks]);
  const record=readForm();const next=[...entries];const isNew=editingIndex<0;
  if(isNew)next.push(record);else next[editingIndex]=record;
  await cloudWrite(section,next);entries=next;if(isNew)editingIndex=entries.length-1;
@@ -474,7 +527,7 @@ try{const r=await fetch(['page_config','jaalan_landmarks','home_features'].inclu
 el('seedButton').addEventListener('click',importStarter);
 
 const frame=el('sirajSiteFrame');
-const sectionByPage={home:'page_config',museum:'museum',figures:'figures',ask:'ask_faq',monuments:'monuments',lessons:'lessons',discover:'discover',jaalan:'jaalan_landmarks',journey:'journey',quiz:'quiz',magazine:'articles',media:'videos',studio:'works',dashboard:'page_config'};
+const sectionByPage={projects:'student_projects',home:'page_config',museum:'museum',figures:'figures',ask:'ask_faq',monuments:'monuments',lessons:'lessons',discover:'discover',jaalan:'jaalan_landmarks',journey:'journey',quiz:'quiz',magazine:'articles',media:'videos',studio:'works',dashboard:'page_config'};
 let frameObserver=null;
 function showDrawer(){el('sirajDrawer').hidden=false;el('sirajBackdrop').hidden=false}
 function closeDrawer(){el('sirajDrawer').hidden=true;el('sirajBackdrop').hidden=true;el('editorView').hidden=true}
@@ -528,7 +581,13 @@ async function managePageSettings(pageId){
  await selectSection('page_config');
  if(!(await ensureBaseContent()))return;
  const idx=indexFor(key);
- if(idx<0){msg('adminMessage','تعذّر العثور على إعدادات الصفحة: '+key,true);return}
+ if(idx<0){
+ if(key==='projects'){
+  const draft={id:'projects',navLabel:'مشاريع الطلبة',tag:'💡 إبداعات الطلبة',title:'مشاريع الطلبة',description:'معرض ابتكارات ومشاريع الطلبة.',sourceNote:'تُنشر بيانات الطلبة بعد موافقة الجهة المدرسية وولي الأمر.',imageUrl:'',blocks:[],links:[]};
+  entries.push(draft);renderItems();editItem(entries.length-1);return
+ }
+ msg('adminMessage','تعذّر العثور على إعدادات الصفحة: '+key,true);return
+}
  editItem(idx)
 }
 
@@ -554,7 +613,7 @@ function enhanceSameSite(){
    }
    top.append(bar)
   }
-  const selector={museum:'#exhibits .exhibit',figures:'#figuresGrid .figure-card',monuments:'#monumentsGrid .mon-card',lessons:'#lessonGrid .lesson-card',articles:'#articles .story',videos:'#videos .story',works:'#worksGallery .studio-work',jaalan_landmarks:'#jaalanGrid .jaalan-card',jaalan_media:'#jaalanMediaGrid .jaalan-media-item',ask_faq:'#sirajFAQ .siraj-faq-card'}[key];
+  const selector={museum:'#exhibits .exhibit',figures:'#figuresGrid .figure-card',monuments:'#monumentsGrid .mon-card',lessons:'#lessonGrid .lesson-card',articles:'#articles .story',videos:'#videos .story',works:'#worksGallery .studio-work',student_projects:'#studentProjectsGrid .student-project-card',jaalan_landmarks:'#jaalanGrid .jaalan-card',jaalan_media:'#jaalanMediaGrid .jaalan-media-item',ask_faq:'#sirajFAQ .siraj-faq-card'}[key];
   if(selector)Array.from(root.querySelectorAll(selector)).forEach((card,i)=>{
    if(card.dataset.sirajManagerEnhanced)return;
    card.dataset.sirajManagerEnhanced='yes';
@@ -565,7 +624,7 @@ function enhanceSameSite(){
     const attr=trigger?.getAttribute('onclick')||'';
     const m=attr.match(/'([^']+)'/);
     if(m)identity=m[1]
-   }else if(key==='works'||key==='jaalan_media'||key==='jaalan_landmarks'||key==='ask_faq')identity=card.querySelector('h3')?.textContent.trim()||i;
+   }else if(key==='student_projects'||key==='works'||key==='jaalan_media'||key==='jaalan_landmarks'||key==='ask_faq')identity=card.querySelector('h3')?.textContent.trim()||i;
    const bar=doc.createElement('div');bar.className='siraj-admin-tools';
    for(const [name,kind] of [['✎ تعديل','edit'],['🗑 حذف','delete']]){
     const b=doc.createElement('button');b.type='button';b.textContent=name;if(kind==='delete')b.className='danger';
