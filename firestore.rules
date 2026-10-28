@@ -11,9 +11,9 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
     match /site_content/{section} {
-      allow read: if section in ['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks'];
+      allow read: if section in ['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks','home_features'];
       allow create, update: if signedInAdmin()
-        && section in ['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks']
+        && section in ['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks','home_features']
         && request.resource.data.keys().hasOnly(['payload','updatedAt'])
         && request.resource.data.payload is string
         && request.resource.data.payload.size() <= 850000;
