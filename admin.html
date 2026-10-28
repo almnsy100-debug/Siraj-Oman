@@ -23,6 +23,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 #sirajDrawer .nav button{font-size:12px;padding:8px}
 @media(max-width:700px){#sirajDock{top:79px;left:5px}#sirajDock button{padding:6px 9px;font-size:12px}#sirajDrawer{padding:7px}}
 
+#editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
 </style>
 <script src="./siraj-config.js"></script>
 </head>
@@ -60,7 +61,7 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 </section>
 <section class="panel" id="editorView" hidden>
 <h2 id="editorTitle">إضافة محتوى</h2>
-<form id="editorForm"><div id="editorFields"></div><div class="actions"><button class="btn" id="saveButton" type="submit">حفظ ونشر</button><button class="btn secondary" id="cancelButton" type="button">إلغاء</button></div></form>
+<form id="editorForm" novalidate><div id="editorFields"></div><div class="actions"><button class="btn" id="saveButton" type="submit">💾 حفظ ونشر</button><button class="btn secondary" id="cancelButton" type="button">إلغاء</button></div><p id="editorStatus" class="muted" role="status" aria-live="polite"></p></form>
 </section>
 </div>
 </section>
@@ -173,88 +174,132 @@ function readForm(){
  if(section==='lessons'){result.options=entries[editingIndex]?.options||['','',''];result.correct=entries[editingIndex]?.correct??0}
  return {...(editingIndex>=0?entries[editingIndex]:{}),...result}
 }
-/* Advanced editing for original structured sections. No scripts or HTML are interpreted here. */
+
+/* محرر عربي مبسط يحافظ على بنية البيانات دون كتابة JSON. */
 let complexSample=null;
 function safeValue(v){return JSON.parse(JSON.stringify(v))}
 function safeId(){return 'siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7)}
+const captions={
+id:'معرّف العنصر',title:'العنوان',name:'الاسم',emoji:'الرمز التعبيري',tag:'اسم القاعة / التصنيف',guide:'اسم مرشد القاعة',
+guideEmoji:'رمز المرشد',guideLine:'رسالة ترحيب المرشد',scene:'رموز المشهد (كل رمز بسطر)',artifacts:'المقتنيات المعروضة (كل عنصر بسطر)',
+facts:'الحقائق والمعلومات',text:'النص التعليمي',era:'الحقبة',period:'الفترة الزمنية',field:'المجال',summary:'النبذة المختصرة',
+tags:'الكلمات المفتاحية',quote:'العبارة المميزة',contributions:'المساهمات والإنجازات',category:'نوع المعلم',type:'نوع المجسم',
+location:'الموقع',source:'رابط المصدر',sourceLabel:'اسم المصدر',capital:'المركز الإداري',visual:'الرموز',
+imageLabels:'تسميات الصور',official:'الموقع الرسمي',portal:'بوابة المحافظة',historicalSites:'المواقع التاريخية',
+figures:'الشخصيات',crafts:'الحرف',landmarks:'المعالم',customs:'العادات والتقاليد',desc:'الوصف',q:'السؤال',explain:'تفسير الإجابة',
+position:'الموقع على الخريطة'
+};
+function field(host,key,label,value,mode='text',readonly=false){
+ const wrapper=document.createElement('div');wrapper.className='field';
+ const title=document.createElement('label');title.textContent=label;title.htmlFor='simple-'+key;wrapper.append(title);
+ const input=mode==='lines'||mode==='long'?document.createElement('textarea'):document.createElement('input');
+ if(input.tagName==='INPUT')input.type=mode==='number'?'number':'text';
+ input.id='simple-'+key;input.value=String(value??'');input.readOnly=readonly;
+ input.maxLength=mode==='lines'||mode==='long'?30000:2000;
+ if(mode==='lines')input.placeholder='اكتب عنصرًا في كل سطر';
+ if(mode==='lines'){const help=document.createElement('small');help.textContent='كل سطر يمثل عنصرًا واحدًا. لا حاجة لكتابة رموز برمجية.';wrapper.append(input,help)}
+ else wrapper.append(input);
+ host.append(wrapper);return input
+}
+function answerForm(host,prefix,q,options,correct,explanation){
+ const box=document.createElement('fieldset');box.className='siraj-group';
+ const legend=document.createElement('legend');legend.textContent='🎯 السؤال التفاعلي';box.append(legend);
+ field(box,prefix+'-q','السؤال',q,'long');
+ const opts=field(box,prefix+'-options','خيارات الإجابة (خيار في كل سطر)',(options||[]).join('\n'),'lines');
+ const select=document.createElement('select');select.id='simple-'+prefix+'-correct';
+ const wrap=document.createElement('div');wrap.className='field';const label=document.createElement('label');label.textContent='الإجابة الصحيحة';label.htmlFor=select.id;
+ wrap.append(label,select);box.append(wrap);
+ function update(){
+  const chosen=Number(select.value);
+  const rows=opts.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  select.replaceChildren();
+  rows.forEach((txt,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent='الخيار '+(i+1)+': '+txt.slice(0,60);select.append(o)});
+  select.value=String(Number.isInteger(chosen)&&chosen>=0&&chosen<rows.length?chosen:Number(correct)||0);
+ }
+ update();opts.addEventListener('input',update);
+ field(box,prefix+'-explain','تفسير الإجابة الصحيحة',explanation,'long');
+ host.append(box)
+}
 async function openComplexEditor(i){
  if(!token)return;
- editingIndex=i;
+ editingIndex=i;complexSample=null;
  const host=el('editorFields');host.replaceChildren();
- if(!entries.length && i<0 && !complexSample){
-  try{const r=await fetch('./cms-starter.json',{cache:'no-store'});if(r.ok){const data=await r.json();complexSample=data[section]?.[0]||null}}catch(e){}
+ if(i<0&&!entries.length){
+  try{const r=await fetch('./cms-starter.json');if(r.ok){const obj=await r.json();complexSample=obj[section]?.[0]||null}}catch(e){}
  }
- const example=i>=0?entries[i]:(entries[0]||complexSample);
- if(!example){msg('adminMessage','استورد محتوى هذا القسم أولاً ثم أضف عناصر جديدة.',true);return}
- const template=safeValue(example);
- if(i<0&&!Array.isArray(template)){
-  if('id' in template)template.id=safeId();
-  for(const k of ['title','name'])if(k in template)template[k]='';
- }
- if(Array.isArray(template)&&i<0)template[0]='';
- el('editorTitle').textContent=i<0?'إضافة عنصر جديد':('تعديل: '+(Array.isArray(template)?template[0]:template.title||template.name||''));
- const hint=document.createElement('p');hint.className='notice';hint.textContent='لتعديل القوائم أو الأسئلة المركبة اكتب JSON صالحاً، ولا تغيّر معرّف العنصر القديم. التعديلات ستظهر بعد الحفظ والنشر.';
- host.append(hint);
- if(Array.isArray(template)){
-  const defs=[['q','السؤال','text',template[0]],['a','خيارات الإجابة (مصفوفة JSON)','json',template[1]],['correct','رقم الإجابة الصحيحة ابتداءً من صفر','number',template[2]],['explain','التفسير','textarea',template[3]]];
-  defs.forEach(([key,label,type,value])=>appendField(host,key,label,type,value));
- }else{
-  for(const [key,value] of Object.entries(template)){
-   const labels={id:'المعرّف (لا تغيّره عند التعديل)',title:'العنوان',name:'الاسم',summary:'الوصف المختصر',desc:'الوصف',text:'النص',quiz:'السؤال والتحدي (JSON)',facts:'الحقائق (JSON)',position:'موقع العنصر على الخريطة (JSON)',scene:'مكونات المشهد (JSON)',visual:'عناصر العرض (JSON)'};
-   const type=(value!==null&&typeof value==='object')?'json':typeof value==='number'?'number':'textarea';
-   appendField(host,key,labels[key]||key,type,value,key==='id'&&i>=0);
+ const base=i>=0?entries[i]:entries[0]||complexSample;
+ if(!base){msg('adminMessage','يجب استيراد محتوى القسم أولاً.',true);return}
+ const obj=safeValue(base);
+ if(i<0){if(Array.isArray(obj))obj[0]='';else{if(obj.id)obj.id=safeId();if('title' in obj)obj.title='';if('name' in obj)obj.name=''}}
+ el('editorTitle').textContent=i<0?'＋ إضافة محتوى جديد':'✏️ تعديل: '+(Array.isArray(obj)?obj[0]:obj.title||obj.name);
+ const hint=document.createElement('p');hint.className='notice';hint.textContent='املأ الحقول العادية. القوائم تُكتب سطرًا بعد سطر، والأسئلة تختار إجابتها الصحيحة من القائمة. ثم اضغط حفظ ونشر.';host.append(hint);
+ if(Array.isArray(obj)){
+  answerForm(host,'quiz',obj[0],obj[1],obj[2],obj[3]);
+ }else for(const [key,value] of Object.entries(obj)){
+  if(section==='journey'&&['a','correct','explain'].includes(key))continue;
+  if(key==='quiz'){answerForm(host,'quiz',value.q,value.a,value.correct,value.explain);continue}
+  if(key==='position'){field(host,'position-top','الموضع من أعلى الخريطة (مثال: 20%)',value.top);field(host,'position-left','الموضع من اليسار (مثال: 45%)',value.left);continue}
+  if(Array.isArray(value)){
+   const rows=key==='facts'&&value.some(Array.isArray)?value.map(x=>x.join(' | ')):value;
+   field(host,key,captions[key]||key,rows.join('\n'),'lines');
+   if(key==='facts'&&value.some(Array.isArray)){const note=document.createElement('p');note.className='muted';note.textContent='اكتب كل حقيقة في سطر بالشكل: عنوان الحقيقة | التفاصيل';host.append(note)}
+   continue
   }
+  field(host,key,captions[key]||key,value,typeof value==='number'?'number':['text','summary','guideLine','desc','quote'].includes(key)?'long':'text',key==='id'&&i>=0)
  }
- el('editorView').hidden=false;el('editorView').scrollIntoView({behavior:'smooth',block:'start'});
+ if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
+ el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
+ el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
 }
-function appendField(host,key,labelText,type,value,readOnly=false){
- const div=document.createElement('div');div.className='field';
- const label=document.createElement('label');label.textContent=labelText;label.htmlFor='complex-'+key;
- const input=type==='textarea'||type==='json'?document.createElement('textarea'):document.createElement('input');
- if(type!=='textarea'&&type!=='json')input.type=type;
- input.id='complex-'+key;input.name=key;input.dataset.kind=type;input.value=type==='json'?JSON.stringify(value,null,2):String(value??'');
- if(type==='json'){input.rows=5;input.dir='ltr';input.spellcheck=false}
- if(readOnly)input.readOnly=true;
- input.maxLength=type==='json'?30000:12000;
- div.append(label,input);host.append(div);
+function readAnswers(prefix){
+ const q=el('simple-'+prefix+'-q').value.trim();
+ const a=el('simple-'+prefix+'-options').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const correct=Number(el('simple-'+prefix+'-correct').value);
+ const explain=el('simple-'+prefix+'-explain').value.trim();
+ if(!q||a.length<2||!Number.isInteger(correct)||correct<0||correct>=a.length)throw Error('يرجى كتابة السؤال وخيارين على الأقل ثم تحديد الإجابة الصحيحة.');
+ return {q,a,correct,explain}
 }
-function validateCMSItem(item){
- const isQuiz=section==='quiz';
- const textFields=[];
- function scan(v){if(typeof v==='string')textFields.push(v);else if(v&&typeof v==='object')Object.values(v).forEach(scan)}
- scan(item);
- if(textFields.some(v=>/<\s*\/?\s*[a-z]|javascript:|onerror\s*=|onload\s*=/i.test(v)))throw Error('المدخل يحتوي على HTML أو تعليمات غير مسموحة.');
- if(isQuiz){
-  if(!item[0]||!Array.isArray(item[1])||item[1].length<2||!Number.isInteger(item[2])||item[2]<0||item[2]>=item[1].length)throw Error('تحقق من نص السؤال وخيارات الإجابة ورقم الإجابة الصحيحة.');
- }else{
-  if(!(item.title||item.name))throw Error('العنوان أو الاسم مطلوب.');
-  if(item.quiz&&(!Array.isArray(item.quiz.a)||!item.quiz.q))throw Error('بنية سؤال العنصر يجب أن تحتوي q وa.');
- }
- return item
+function validateCMSItem(obj){
+ const scan=[];function walk(v){if(typeof v==='string')scan.push(v);else if(v&&typeof v==='object')Object.values(v).forEach(walk)}walk(obj);
+ if(scan.some(v=>/<\s*\/?\s*[a-z]|javascript:|onerror\s*=/i.test(v)))throw Error('نص غير مسموح به.');
+ if(section==='quiz'){if(!obj[0])throw Error('اكتب السؤال.');return obj}
+ if(!(obj.title||obj.name))throw Error('العنوان أو الاسم مطلوب.');
+ return obj
 }
 function readComplexForm(){
- if(section==='quiz'){
-  const arr=[];
-  for(const key of ['q','a','correct','explain']){const el= document.getElementById('complex-'+key); const v=el.value.trim();arr.push(key==='a'?JSON.parse(v):key==='correct'?Number(v):v)}
-  return validateCMSItem(arr)
+ if(section==='quiz'){const x=readAnswers('quiz');return [x.q,x.a,x.correct,x.explain]}
+ const base=editingIndex>=0?entries[editingIndex]:entries[0]||complexSample;
+ if(!base)throw Error('قالب العنصر غير موجود.');
+ const obj=safeValue(base);
+ for(const [key,value] of Object.entries(base)){
+  if(key==='quiz'){obj.quiz=readAnswers('quiz');continue}
+  if(key==='position'){obj.position={...value,top:el('simple-position-top').value.trim(),left:el('simple-position-left').value.trim()};continue}
+  if(section==='journey'&&['a','correct','explain'].includes(key))continue;
+  const input=el('simple-'+key);if(!input)continue;
+  if(Array.isArray(value)){
+   const rows=input.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+   obj[key]=key==='facts'&&value.some(Array.isArray)?rows.map(x=>{const p=x.split(/\s*\|\s*/);return[p.shift()||'',p.join(' | ')]}):rows
+  }else obj[key]=typeof value==='number'?Number(input.value):input.value.trim()
  }
- const old=editingIndex>=0?entries[editingIndex]:(entries[0]||complexSample);
- if(!old)throw Error('استورد عناصر القسم أولاً.');
- const obj={};
- for(const key of Object.keys(old)){
-  const input=document.getElementById('complex-'+key);if(!input)continue;
-  const value=input.value.trim();
-  obj[key]=input.dataset.kind==='json'?JSON.parse(value):input.dataset.kind==='number'?Number(value):value;
- }
+ if(section==='journey'){const x=readAnswers('journey');obj.q=x.q;obj.a=x.a;obj.correct=x.correct;obj.explain=x.explain}
  return validateCMSItem(obj)
 }
-
 async function save(e){
- e.preventDefault();if(!token)return;const btn=el('saveButton');btn.disabled=true;try{
- const record=readForm();const next=[...entries];if(editingIndex<0)next.push(record);else next[editingIndex]=record;
- await cloudWrite(section,next);entries=next;el('editorView').hidden=true;renderItems();msg('adminMessage','تم حفظ المحتوى ونشره في قاعدة البيانات.',false);refreshManagerSite()
- }catch(err){msg('adminMessage','فشل الحفظ: '+explainCloudError(err,section),true)}
- finally{btn.disabled=false}
+ e.preventDefault();if(!token){msg('editorStatus','سجّل الدخول مرة أخرى قبل الحفظ.',true);return}
+ const btn=el('saveButton');if(btn.disabled)return;btn.disabled=true;btn.textContent='⏳ جارٍ الحفظ...';
+ msg('editorStatus','جارٍ الحفظ...',false);
+ try{
+ const record=readForm();const next=[...entries];const isNew=editingIndex<0;
+ if(isNew)next.push(record);else next[editingIndex]=record;
+ await cloudWrite(section,next);entries=next;if(isNew)editingIndex=entries.length-1;
+ renderItems();msg('adminMessage','تم حفظ المحتوى بنجاح.',false);
+ msg('editorStatus','✅ تم الحفظ والنشر بنجاح. يظهر المحتوى عند تحديث صفحة الزائر.',false);
+ refreshManagerSite()
+ }catch(err){
+ const result='❌ لم يتم الحفظ: '+explainCloudError(err,section);
+ msg('editorStatus',result,true);msg('adminMessage',result,true);
+ el('editorStatus').scrollIntoView({behavior:'smooth',block:'nearest'})
+ }finally{btn.disabled=false;btn.textContent='💾 حفظ ونشر'}
 }
 async function deleteItem(i){
  if(!token||!confirm('هل تريد حذف هذا العنصر من المحتوى المنشور لجميع الزوار؟'))return;
