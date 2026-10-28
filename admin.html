@@ -507,6 +507,18 @@ async function manageCurrent(action='manage',identity=null,explicitKey=null){
  if(i<0){msg('adminMessage','اختر العنصر المطلوب من القائمة لتعديله أو حذفه.',true);return}
  if(action==='edit')editItem(i);else if(action==='delete')await deleteItem(i)
 }
+
+async function managePageSettings(pageId){
+ if(!token)return;
+ const key=pageId||activePage();
+ showDrawer();
+ await selectSection('page_config');
+ if(!(await ensureBaseContent()))return;
+ const idx=indexFor(key);
+ if(idx<0){msg('adminMessage','تعذّر العثور على إعدادات الصفحة: '+key,true);return}
+ editItem(idx)
+}
+
 function enhanceSameSite(){
  if(!token||!frame.contentWindow)return;
  let doc,win;try{win=frame.contentWindow;doc=frame.contentDocument;if(!doc?.body)return}catch(e){return}
@@ -518,15 +530,16 @@ function enhanceSameSite(){
  const inject=()=>{
   const page=activePage(),key=sectionByPage[page],root=doc.getElementById('page-'+page);
   if(!token||!key||!root)return;
-  const top=root.querySelector('.pagehead .shell')||root.querySelector('.section-title');
+  const top=root.querySelector('.pagehead .shell')||root.querySelector('.hero-copy')||root.querySelector('.section-title');
   if(top&&!top.querySelector('.siraj-admin-top')){
    const bar=doc.createElement('div');bar.className='siraj-admin-top';
+   const editPage=doc.createElement('button');editPage.type='button';editPage.textContent='🖼️ تعديل بيانات الصفحة وصورها';editPage.onclick=()=>managePageSettings(page);bar.append(editPage);
    for(const [name,kind] of [['＋ إضافة محتوى','add'],['✎ تعديل وحذف','manage']]){
-    const b=doc.createElement('button');b.textContent=name;b.type='button';b.onclick=()=>manageCurrent(kind,null,key);bar.append(b)
+    if(key!=='page_config'){const b=doc.createElement('button');b.textContent=name;b.type='button';b.onclick=()=>manageCurrent(kind,null,key);bar.append(b)}
    }
    top.append(bar)
   }
-  const selector={museum:'#exhibits .exhibit',figures:'#figuresGrid .figure-card',monuments:'#monumentsGrid .mon-card',lessons:'#lessonGrid .lesson-card',articles:'#articles .story',videos:'#videos .story',works:'#worksGallery .studio-work',jaalan_media:'#jaalanMediaGrid .jaalan-media-item'}[key];
+  const selector={museum:'#exhibits .exhibit',figures:'#figuresGrid .figure-card',monuments:'#monumentsGrid .mon-card',lessons:'#lessonGrid .lesson-card',articles:'#articles .story',videos:'#videos .story',works:'#worksGallery .studio-work',jaalan_landmarks:'#jaalanGrid .jaalan-card',jaalan_media:'#jaalanMediaGrid .jaalan-media-item',ask_faq:'#sirajFAQ .siraj-faq-card'}[key];
   if(selector)Array.from(root.querySelectorAll(selector)).forEach((card,i)=>{
    if(card.dataset.sirajManagerEnhanced)return;
    card.dataset.sirajManagerEnhanced='yes';
@@ -537,7 +550,7 @@ function enhanceSameSite(){
     const attr=trigger?.getAttribute('onclick')||'';
     const m=attr.match(/'([^']+)'/);
     if(m)identity=m[1]
-   }else if(key==='works'||key==='jaalan_media')identity=card.querySelector('h3')?.textContent.trim()||i;
+   }else if(key==='works'||key==='jaalan_media'||key==='jaalan_landmarks'||key==='ask_faq')identity=card.querySelector('h3')?.textContent.trim()||i;
    const bar=doc.createElement('div');bar.className='siraj-admin-tools';
    for(const [name,kind] of [['✎ تعديل','edit'],['🗑 حذف','delete']]){
     const b=doc.createElement('button');b.type='button';b.textContent=name;if(kind==='delete')b.className='danger';
@@ -572,7 +585,7 @@ function enhanceSameSite(){
  inject()
 }
 frame.addEventListener('load',enhanceSameSite);
-el('openDrawerButton').addEventListener('click',()=>manageCurrent('manage'));
+el('openDrawerButton').addEventListener('click',()=>managePageSettings());
 el('refreshSiteButton').addEventListener('click',refreshManagerSite);
 el('closeDrawerButton').addEventListener('click',closeDrawer);
 el('sirajBackdrop').addEventListener('click',closeDrawer);
