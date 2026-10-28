@@ -60,6 +60,20 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 @media(max-width:750px){.hero-heritage-art{background-position:28% center;opacity:.28}.hero-heritage-art:before{background:linear-gradient(90deg,rgba(65,20,35,.16),rgba(65,20,35,.10))}.hero-heritage-art:after{background:linear-gradient(90deg,rgba(65,20,35,.16),rgba(65,20,35,.26))}.hero-copy{max-width:100%}}
 .siraj-content-photo{display:block;width:100%;height:170px;object-fit:cover;border-radius:12px;background:#f6f0e5;margin:5px auto 12px}.exhibit-media.rich .siraj-content-photo,.mon-scene .siraj-content-photo{height:100%;width:100%;object-fit:cover;margin:0}.story-art .siraj-content-photo,.media-thumb .siraj-content-photo{height:100%;border-radius:0;margin:0}.figure-body .siraj-content-photo{height:165px}.museum-real-image .siraj-content-photo{height:260px}
 .siraj-page-hero-image{display:block;width:min(100%,1000px);max-height:350px;object-fit:cover;border-radius:18px;margin:18px auto 5px;box-shadow:0 4px 18px #2c14221e}.siraj-page-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px;padding-top:18px;padding-bottom:18px}.siraj-page-extra-card{padding:18px;line-height:1.9;overflow-wrap:anywhere}.siraj-page-extra-card h3{color:var(--wine);margin:8px 0}.siraj-page-extra-card p{white-space:pre-wrap}.siraj-faq-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;padding:24px 0}.siraj-faq-list>h2{grid-column:1/-1}.siraj-faq-card{padding:18px}.siraj-faq-card p{white-space:pre-wrap}
+/* أدوات تعديل المواد العامة مخصصة للمدير؛ يحتفظ الزائر بالتصفح والألعاب والتقدم الشخصي فقط. */
+#page-lessons .lesson-card .lesson-actions button[onclick^="openLessonEditor"],
+#page-lessons .lesson-card .lesson-actions button[onclick^="deleteLesson"],
+#page-lessons .section-title button[onclick^="openLessonEditor"],
+#page-lessons .lesson-grid + .card,
+#page-studio #workForm,
+#page-studio .layout2 > .card:first-child,
+#page-studio .work-actions,
+#page-studio button[onclick^="saveImpact"],
+#page-studio button[onclick^="importStudio"],
+#page-studio #studioImport,
+#page-jaalan .jaalan-media-add,
+#page-jaalan .jaalan-media-item > button.btn.secondary.small
+{display:none!important}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script><style id="jaalan-media-style">
 .jaalan-media-section{margin-top:42px}.jaalan-media-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.jaalan-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.jaalan-media-item{overflow:hidden}.jaalan-media-item h3{color:var(--wine);margin:12px 0 4px}.jaalan-media-item p{font-size:13px;line-height:1.8;color:var(--muted)}.jaalan-media-item video,.jaalan-media-item audio{width:100%;max-height:260px;border-radius:12px;background:#331a25}.jaalan-media-item a{color:var(--wine);font-weight:bold;overflow-wrap:anywhere}.jaalan-media-item .media-icon{font-size:43px;padding:22px;text-align:center;background:#f7f1eb;border-radius:14px}.jaalan-media-add{margin-top:23px}.jaalan-media-add summary{font-weight:900;cursor:pointer;color:var(--wine);font-size:18px}.jaalan-media-form{display:grid;gap:14px;padding-top:16px}.jaalan-media-form label{display:grid;gap:6px;font-weight:700;color:var(--wine)}.jaalan-media-form input,.jaalan-media-form select,.jaalan-media-form textarea{width:100%;border:1px solid #d7c5c8;border-radius:10px;padding:11px;color:#263035;background:#fff}.jaalan-media-form .btn{justify-self:start}.jaalan-media-note{font-size:12px;line-height:1.8;color:#74655e;background:#fff7e7;border-radius:12px;padding:12px}
