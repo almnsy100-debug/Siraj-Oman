@@ -262,5 +262,111 @@
         ]
       ]
     }
+  ],
+  "home_features": [
+    {
+      "id": "museum",
+      "emoji": "🏛",
+      "title": "المتحف العُماني الذكي",
+      "description": "جولة بين محطات التاريخ والتراث والبيئة مع تعريفات صوتية.",
+      "page": "museum",
+      "imageUrl": ""
+    },
+    {
+      "id": "figures",
+      "emoji": "👤",
+      "title": "شخصيات عُمانية",
+      "description": "معرض تفاعلي لأعلام عُمان مع بطاقات معرفية وتحديات سريعة.",
+      "page": "figures",
+      "imageUrl": ""
+    },
+    {
+      "id": "discover",
+      "emoji": "🗺️",
+      "title": "اكتشف عُمان",
+      "description": "خريطة سلطنة عُمان بالمحافظات مع معلومات وولايات ومعرض بصري.",
+      "page": "discover",
+      "imageUrl": ""
+    },
+    {
+      "id": "jaalan",
+      "emoji": "📍",
+      "title": "جعلان بني بوحسن",
+      "description": "خانة خاصة بولاية جعلان بني بوحسن ومعالمها المحلية البارزة.",
+      "page": "jaalan",
+      "imageUrl": ""
+    },
+    {
+      "id": "journey",
+      "emoji": "🧭",
+      "title": "رحلة في ربوع عُمان",
+      "description": "استكشف ست محطات واجمع الأختام في جوازك المعرفي.",
+      "page": "journey",
+      "imageUrl": ""
+    },
+    {
+      "id": "quiz",
+      "emoji": "🎯",
+      "title": "تحدي سراج",
+      "description": "أسئلة تفاعلية ونقاط وتغذية راجعة فورية.",
+      "page": "quiz",
+      "imageUrl": ""
+    },
+    {
+      "id": "magazine",
+      "emoji": "📰",
+      "title": "صحيفة سراج المعرفة",
+      "description": "قصص ومقالات رقمية قابلة للتحديث من فريق المدرسة.",
+      "page": "magazine",
+      "imageUrl": ""
+    },
+    {
+      "id": "media",
+      "emoji": "🎬",
+      "title": "مراسل سراج",
+      "description": "مكتبة للأفلام والتقارير المعرفية من إنتاج الطلبة.",
+      "page": "media",
+      "imageUrl": ""
+    },
+    {
+      "id": "dashboard",
+      "emoji": "🏅",
+      "title": "جواز الإنجاز",
+      "description": "شاهد نتائجك وشهادتك وخطة قياس أثر المشروع.",
+      "page": "dashboard",
+      "imageUrl": ""
+    },
+    {
+      "id": "ask",
+      "emoji": "🤖",
+      "title": "اسأل سراج",
+      "description": "مساعد معرفي تفاعلي يجيب عن أسئلة عُمان من قاعدة معلومات محددة ويذكر المصادر.",
+      "page": "ask",
+      "imageUrl": ""
+    },
+    {
+      "id": "monuments",
+      "emoji": "🧱",
+      "title": "معالم عُمان 3D",
+      "description": "عارض مبسط للمعالم والمجسمات مع أسئلة وختم إنجاز.",
+      "page": "monuments",
+      "imageUrl": ""
+    },
+    {
+      "id": "lessons",
+      "emoji": "📘",
+      "title": "الدروس التعليمية",
+      "description": "الدراسات الاجتماعية والعلوم واللغة العربية: عرض وفيديو وكتيب ولعبة لكل درس.",
+      "page": "lessons",
+      "imageUrl": ""
+    },
+    {
+      "id": "studio",
+      "emoji": "✨",
+      "title": "استوديو سراج",
+      "description": "توثيق إنتاج الطلبة ومصادر المعرفة وقياس الأثر وتجهيز تقرير المشاركة.",
+      "page": "studio",
+      "imageUrl": ""
+    }
   ]
 }
