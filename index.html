@@ -925,11 +925,38 @@ function renderSirajFAQ(){
  }
 }
 
+
+function renderStudentProjects(items){
+ const host=document.getElementById('studentProjectsGrid');if(!host)return;
+ host.replaceChildren();
+ const rows=Array.isArray(items)?items.filter(p=>p&&typeof p.title==='string'&&p.title.trim()).slice(0,100):[];
+ if(!rows.length){const p=document.createElement('p');p.className='empty';p.textContent='لا توجد مشاريع منشورة حتى الآن.';host.append(p);return}
+ for(const item of rows){
+  const card=document.createElement('article');card.className='card student-project-card';
+  card.dataset.sirajProjectId=item.id||'';
+  const pic=safeAdminImage(item.imageUrl);
+  if(pic){const img=document.createElement('img');img.className='siraj-content-photo';img.loading='lazy';img.src=pic;img.alt=item.title;card.append(img)}
+  const heading=document.createElement('h3');heading.textContent=item.title;card.append(heading);
+  if(item.description){const p=document.createElement('p');p.textContent=item.description;card.append(p)}
+  const facts=document.createElement('div');facts.className='student-project-facts';
+  for(const [label,key] of [['الفئة المستهدفة','targetAudience'],['اسم الطالب','studentName'],['المدرسة','school']]){
+   if(item[key]){const line=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label+': ';line.append(strong,document.createTextNode(String(item[key])));facts.append(line)}
+  }
+  card.append(facts);
+  if(item.url&&/^https:\/\/[^ <>"']+$/i.test(item.url)){const link=document.createElement('a');link.className='btn small';link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='↗ فتح المشروع';card.append(link)}
+  const links=sirajLinksMarkup(item);
+  if(links){const pane=document.createElement('div');pane.innerHTML=links;card.append(pane)}
+  host.append(card)
+ }
+}
+
 function renderHomeTiles(items){
  const mount=document.getElementById('features');if(!mount||!Array.isArray(items))return;
  mount.replaceChildren();
- const safePage=/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|dashboard)$/;
- for(const item of items.slice(0,45)){
+ const safePage=/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|projects|dashboard)$/;
+ const originals=items.some(x=>x&&x.page==='projects')?items:[...items];
+ if(originals!==items){const before=originals.findIndex(x=>x.page==='dashboard');originals.splice(before<0?originals.length:before,0,{id:'projects',title:'مشاريع الطلبة',description:'مشاريع الطلبة وروابط أعمالهم التعليمية.',imageUrl:'',emoji:'💡',page:'projects'})}
+ for(const item of originals.slice(0,45)){
   if(!item||typeof item.title!=='string')continue;
   const target=safePage.test(item.page||'')?item.page:'home';
   const card=document.createElement('div');card.className='card feature';card.dataset.sirajTarget=item.id||target;
@@ -947,7 +974,7 @@ function renderHomeTiles(items){
 function applyPageSettings(settings){
  if(!Array.isArray(settings))return;
  for(const setting of settings){
-  if(!setting||!/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|dashboard)$/.test(setting.id||''))continue;
+  if(!setting||!/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|projects|dashboard)$/.test(setting.id||''))continue;
   const page=document.getElementById('page-'+setting.id);
   if(!page)continue;
   const home=setting.id==='home',head=page.querySelector(home?'.hero-copy':'.pagehead .shell');
@@ -989,7 +1016,7 @@ function applyPageSettings(settings){
 
 async function refreshPublic(){
  if(!c.projectId)return;
- const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud,pageSettings,faqRows,jaalanData,homeTiles]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks','home_features'].map(loadContent));
+ const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud,pageSettings,faqRows,jaalanData,homeTiles,studentProjects]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks','home_features','student_projects'].map(loadContent));
  try{
  if(articles!==null){state.articles=articles.filter(x=>x&&typeof x.title==='string');renderArticles();updateStats()}
  if(videos!==null){state.videos=videos.filter(x=>x&&typeof x.title==='string');renderVideos();updateStats()}
@@ -1009,6 +1036,7 @@ async function refreshPublic(){
  if(faqRows!==null){sirajFaqRows=faqRows.filter(x=>x&&typeof x.title==='string'&&typeof x.body==='string');renderSirajFAQ();initSirajChat()}
  if(pageSettings!==null)applyPageSettings(pageSettings);
  if(homeTiles!==null)renderHomeTiles(homeTiles);
+ if(studentProjects!==null)renderStudentProjects(studentProjects);
  if(quizCloud!==null){const rows=quizCloud.filter(x=>Array.isArray(x)&&Array.isArray(x[1])&&Number.isInteger(x[2]));questions.splice(0,questions.length,...rows);quizIdx=0;quizPts=0;quizAnswered=false;renderQuiz()}
  }catch(e){console.warn('Siraj cloud display:',e.message)}
 }
