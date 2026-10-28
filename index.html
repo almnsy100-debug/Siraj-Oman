@@ -59,6 +59,7 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 .hero-copy{max-width:740px;position:relative;z-index:1;text-shadow:0 2px 16px rgba(25,5,16,.2)}
 @media(max-width:750px){.hero-heritage-art{background-position:28% center;opacity:.28}.hero-heritage-art:before{background:linear-gradient(90deg,rgba(65,20,35,.16),rgba(65,20,35,.10))}.hero-heritage-art:after{background:linear-gradient(90deg,rgba(65,20,35,.16),rgba(65,20,35,.26))}.hero-copy{max-width:100%}}
 .siraj-content-photo{display:block;width:100%;height:170px;object-fit:cover;border-radius:12px;background:#f6f0e5;margin:5px auto 12px}.exhibit-media.rich .siraj-content-photo,.mon-scene .siraj-content-photo{height:100%;width:100%;object-fit:cover;margin:0}.story-art .siraj-content-photo,.media-thumb .siraj-content-photo{height:100%;border-radius:0;margin:0}.figure-body .siraj-content-photo{height:165px}.museum-real-image .siraj-content-photo{height:260px}
+.siraj-page-hero-image{display:block;width:min(100%,1000px);max-height:350px;object-fit:cover;border-radius:18px;margin:18px auto 5px;box-shadow:0 4px 18px #2c14221e}.siraj-page-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px;padding-top:18px;padding-bottom:18px}.siraj-page-extra-card{padding:18px;line-height:1.9;overflow-wrap:anywhere}.siraj-page-extra-card h3{color:var(--wine);margin:8px 0}.siraj-page-extra-card p{white-space:pre-wrap}.siraj-faq-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;padding:24px 0}.siraj-faq-list>h2{grid-column:1/-1}.siraj-faq-card{padding:18px}.siraj-faq-card p{white-space:pre-wrap}
 </style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script><style id="jaalan-media-style">
 .jaalan-media-section{margin-top:42px}.jaalan-media-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.jaalan-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.jaalan-media-item{overflow:hidden}.jaalan-media-item h3{color:var(--wine);margin:12px 0 4px}.jaalan-media-item p{font-size:13px;line-height:1.8;color:var(--muted)}.jaalan-media-item video,.jaalan-media-item audio{width:100%;max-height:260px;border-radius:12px;background:#331a25}.jaalan-media-item a{color:var(--wine);font-weight:bold;overflow-wrap:anywhere}.jaalan-media-item .media-icon{font-size:43px;padding:22px;text-align:center;background:#f7f1eb;border-radius:14px}.jaalan-media-add{margin-top:23px}.jaalan-media-add summary{font-weight:900;cursor:pointer;color:var(--wine);font-size:18px}.jaalan-media-form{display:grid;gap:14px;padding-top:16px}.jaalan-media-form label{display:grid;gap:6px;font-weight:700;color:var(--wine)}.jaalan-media-form input,.jaalan-media-form select,.jaalan-media-form textarea{width:100%;border:1px solid #d7c5c8;border-radius:10px;padding:11px;color:#263035;background:#fff}.jaalan-media-form .btn{justify-self:start}.jaalan-media-note{font-size:12px;line-height:1.8;color:#74655e;background:#fff7e7;border-radius:12px;padding:12px}
@@ -304,7 +305,7 @@ function renderDiscover(){const map=document.getElementById('omanMap');const lis
 function selectGov(id){state.selectedGov=id;if(!state.discovered.includes(id))state.discovered.push(id);save();renderDiscover()}
 function answerDiscover(id,i){sirajHandleAnswer('discover',id,0,i)}
 
-const jaalanLandmarks=[{title:'حصن جعلان',emoji:'🏰',tag:'معلم تاريخي',summary:'من أبرز المعالم التاريخية المرتبطة بولاية جعلان بني بوحسن، ويعكس حضور الحصون في البيئة العُمانية ودورها في الحماية والإدارة المحلية.',facts:[['القيمة التعليمية','التعرف إلى الحصون ودورها التاريخي'],['الارتباط','ولاية جعلان بني بوحسن'],['التوظيف','مناسب لدروس التاريخ والهوية الوطنية'],['التطوير','يمكن إضافة صور أو نموذج 3D لاحقًا']]},{title:'جبل قهوان',emoji:'⛰️',tag:'معلم طبيعي',summary:'جبل قهوان من أبرز المعالم الطبيعية في جعلان بني بوحسن، وتشير المصادر الحكومية إلى وجود كهوف في جباله، ويمكن توظيفه في أنشطة الجغرافيا والاستكشاف.',facts:[['القيمة','تعزيز الانتماء للمكان'],['الارتباط','من المواقع المحلية المرتبطة بالولاية'],['التوظيف','مشروعات البحث المحلي والتصوير الميداني'],['التطوير','إضافة وصف وصور ميدانية من المدرسة']]},{title:'الأفلاج',emoji:'💧',tag:'تراث مائي',summary:'تمثل الأفلاج عنصرًا أصيلًا في الحياة العُمانية، وتساعد هذه البطاقة على ربط الطلبة بإدارة المياه والزراعة والحياة الاجتماعية.',facts:[['المحور','إدارة المياه والزراعة'],['القيمة','تراث مائي وهوية محلية'],['التوظيف','ربط العلوم بالدراسات الاجتماعية'],['التطوير','إرفاق صور ومقاطع صوتية لشرح الفلج']]},{title:'الطحايم',emoji:'🌴',tag:'موقع محلي',summary:'مدخل بصري ومعرفي إلى «الطحايم» بوصفه عنصرًا محليًا يمكن أن يُثري ملف الولاية داخل المنصة ويعكس المعرفة المرتبطة بالمكان.',facts:[['القيمة','إبراز المكان المحلي'],['الارتباط','جعلان بني بوحسن'],['التوظيف','التعلم القائم على المجتمع المحلي'],['التطوير','إضافة صور واقعية وروابط مرجعية']]},{title:'فلج المشايخ',emoji:'🏞️',tag:'قرية وواحة',summary:'فلج المشايخ قرية وواحة عُمانية في جعلان بني بوحسن؛ وتصفها وزارة الإعلام بأنها تتميز بأشجار الغاف والنخيل بين الرمال الذهبية.',facts:[['التصنيف','قرية وواحة محلية'],['القيمة','هوية مائية وتراث مجتمعي'],['التوظيف','مشروعات التوثيق المحلي'],['التطوير','تصوير فلج المشايخ ورفع ملفاته للمنصة']]}];function renderJaalan(){const el=document.getElementById('jaalanGrid');if(!el)return;el.innerHTML=jaalanLandmarks.map(x=>`<article class="card jaalan-card"><div class="jaalan-photo"><span class="badge">${x.tag}</span><div class="big">${x.emoji}</div>${x.title==='حصن جعلان'?'<img class="real-photo" src="assets/jaalan_fort.png" alt="صورة حقيقية لحصن جعلان بني بوحسن" loading="lazy">':''}<div class="caption">${x.title==='حصن جعلان'?'صورة فوتوغرافية بحركة عرض':'عرض توضيحي متحرك'}</div></div><div class="jaalan-body"><h3>${x.title}</h3><p>${x.summary}</p><div class="jaalan-points">${x.facts.map(f=>`<div><strong>${f[0]}</strong><span>${f[1]}</span></div>`).join('')}</div></div></article>`).join('')}
+const jaalanLandmarks=[{title:'حصن جعلان',emoji:'🏰',tag:'معلم تاريخي',summary:'من أبرز المعالم التاريخية المرتبطة بولاية جعلان بني بوحسن، ويعكس حضور الحصون في البيئة العُمانية ودورها في الحماية والإدارة المحلية.',facts:[['القيمة التعليمية','التعرف إلى الحصون ودورها التاريخي'],['الارتباط','ولاية جعلان بني بوحسن'],['التوظيف','مناسب لدروس التاريخ والهوية الوطنية'],['التطوير','يمكن إضافة صور أو نموذج 3D لاحقًا']]},{title:'جبل قهوان',emoji:'⛰️',tag:'معلم طبيعي',summary:'جبل قهوان من أبرز المعالم الطبيعية في جعلان بني بوحسن، وتشير المصادر الحكومية إلى وجود كهوف في جباله، ويمكن توظيفه في أنشطة الجغرافيا والاستكشاف.',facts:[['القيمة','تعزيز الانتماء للمكان'],['الارتباط','من المواقع المحلية المرتبطة بالولاية'],['التوظيف','مشروعات البحث المحلي والتصوير الميداني'],['التطوير','إضافة وصف وصور ميدانية من المدرسة']]},{title:'الأفلاج',emoji:'💧',tag:'تراث مائي',summary:'تمثل الأفلاج عنصرًا أصيلًا في الحياة العُمانية، وتساعد هذه البطاقة على ربط الطلبة بإدارة المياه والزراعة والحياة الاجتماعية.',facts:[['المحور','إدارة المياه والزراعة'],['القيمة','تراث مائي وهوية محلية'],['التوظيف','ربط العلوم بالدراسات الاجتماعية'],['التطوير','إرفاق صور ومقاطع صوتية لشرح الفلج']]},{title:'الطحايم',emoji:'🌴',tag:'موقع محلي',summary:'مدخل بصري ومعرفي إلى «الطحايم» بوصفه عنصرًا محليًا يمكن أن يُثري ملف الولاية داخل المنصة ويعكس المعرفة المرتبطة بالمكان.',facts:[['القيمة','إبراز المكان المحلي'],['الارتباط','جعلان بني بوحسن'],['التوظيف','التعلم القائم على المجتمع المحلي'],['التطوير','إضافة صور واقعية وروابط مرجعية']]},{title:'فلج المشايخ',emoji:'🏞️',tag:'قرية وواحة',summary:'فلج المشايخ قرية وواحة عُمانية في جعلان بني بوحسن؛ وتصفها وزارة الإعلام بأنها تتميز بأشجار الغاف والنخيل بين الرمال الذهبية.',facts:[['التصنيف','قرية وواحة محلية'],['القيمة','هوية مائية وتراث مجتمعي'],['التوظيف','مشروعات التوثيق المحلي'],['التطوير','تصوير فلج المشايخ ورفع ملفاته للمنصة']]}];function renderJaalan(){const el=document.getElementById('jaalanGrid');if(!el)return;el.innerHTML=jaalanLandmarks.map(x=>`<article class="card jaalan-card"><div class="jaalan-photo"><span class="badge">${x.tag}</span><div class="big">${x.emoji}</div>${sirajPhoto(x)|| (x.title==='حصن جعلان'?'<img class="real-photo" src="assets/jaalan_fort.png" alt="صورة حقيقية لحصن جعلان بني بوحسن" loading="lazy">':'')}<div class="caption">${x.title==='حصن جعلان'?'صورة فوتوغرافية بحركة عرض':'عرض توضيحي متحرك'}</div></div><div class="jaalan-body"><h3>${x.title}</h3><p>${x.summary}</p><div class="jaalan-points">${x.facts.map(f=>`<div><strong>${f[0]}</strong><span>${f[1]}</span></div>`).join('')}</div></div></article>`).join('')}
 
 const regions=[{id:'south',name:'جنوب الشرقية',emoji:'⛵',desc:'سواحل وتراث بحري',q:'بماذا ترتبط ولاية صور تاريخيًا؟',a:['صناعة السفن والملاحة','زراعة الأرز','صناعة الثلج'],correct:0,explain:'اشتهرت صور بتاريخها البحري وصناعة السفن التقليدية.'},{id:'muscat',name:'مسقط',emoji:'🏛',desc:'تاريخ ومعالم حضرية',q:'ما اسم عاصمة سلطنة عُمان؟',a:['صلالة','مسقط','نزوى'],correct:1,explain:'مسقط هي عاصمة سلطنة عُمان.'},{id:'dakhiliyah',name:'الداخلية',emoji:'🏰',desc:'حصون ومواقع تاريخية',q:'في أي محافظة تقع ولاية نزوى؟',a:['الداخلية','البريمي','ظفار'],correct:0,explain:'نزوى من ولايات محافظة الداخلية.'},{id:'dhofar',name:'ظفار',emoji:'🌴',desc:'تنوع طبيعي',q:'أي مدينة تُعد المركز الإداري لمحافظة ظفار؟',a:['عبري','صحار','صلالة'],correct:2,explain:'صلالة هي المركز الإداري لمحافظة ظفار.'},{id:'north',name:'شمال الباطنة',emoji:'⚓',desc:'ساحل وحضارة',q:'أي من المدن الآتية تقع في شمال الباطنة؟',a:['صحار','خصب','هيما'],correct:0,explain:'تقع ولاية صحار بمحافظة شمال الباطنة.'},{id:'musandam',name:'مسندم',emoji:'🏔',desc:'جبال وبحر',q:'ما اسم المركز الإداري لمحافظة مسندم؟',a:['الرستاق','خصب','إبراء'],correct:1,explain:'خصب هي المركز الإداري لمحافظة مسندم.'}];
 function renderJourney(){setHtml('locations',regions.map(x=>`<button class="location" onclick="openRegion('${x.id}')"><span>${x.emoji}</span><b>${x.name} ${state.stamps.includes(x.id)?'✅':''}</b><small>${x.desc}</small></button>`).join(''));setHtml('stamps',regions.map(x=>`<div class="stamp ${state.stamps.includes(x.id)?'earned':''}">${x.emoji}<br>${x.name}</div>`).join(''));document.getElementById('passportName').textContent=state.name;document.getElementById('certBtn').disabled=state.stamps.length<regions.length}
@@ -412,10 +413,14 @@ const sirajSampleQuestions=['ما ولايات محافظة جنوب الشرق�
 function sirajNormalize(s){return String(s).normalize('NFKC').replace(/[ً-ٰٟ]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ').trim()}
 function govByQuery(q){return omanGovernorates.find(g=>q.includes(sirajNormalize(g.name)))}
 function wilayaByQuery(q){return Object.keys(wilayatInfo).find(w=>q.includes(sirajNormalize(w)))}
-function sirajAnswer(question){const q=sirajNormalize(question);const gov=govByQuery(q);if(gov&&/ولايات|اذكر|ماهي/.test(q)){const wl=governorateWilayats[gov.name]||gov.wilayats||[];return {answer:`ولايات محافظة ${gov.name}: ${wl.join('، ')}. والمركز الإداري للمحافظة هو ${gov.capital}.`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}if(gov&&/مركز|عاصمه|العاصمه/.test(q)){return {answer:`المركز الإداري لمحافظة ${gov.name} هو ${gov.capital}. ${gov.summary}`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}if(gov){return {answer:`${gov.summary} المركز الإداري للمحافظة هو ${gov.capital}. ومن ولاياتها: ${(governorateWilayats[gov.name]||gov.wilayats||[]).join('، ')}.`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}const wil=wilayaByQuery(q);if(wil){const x=wilayatInfo[wil];return {answer:x.answer+` وتتبع هذه الولاية محافظة ${x.gov}.`,source:x.source,url:x.url}}let best=null,score=0;for(const item of specialOmanTopics){let n=0;for(const term of item.terms){const t=sirajNormalize(term);if(q.includes(t))n+=t.length>=7?3:2}if(n>score){score=n;best=item}}return score>0?best:null}
+let sirajFaqRows=[];
+function sirajAnswer(question){const q=sirajNormalize(question);
+const custom=sirajFaqRows.find(row=>{const title=sirajNormalize(row.title||'');return title&&title===q})||sirajFaqRows.find(row=>{const title=sirajNormalize(row.title||'');return title.length>=9&&(q.includes(title)||title.includes(q)&&q.length>=9)});
+if(custom)return {answer:custom.body,source:custom.source||'فريق سراج عُمان',url:custom.url||'https://omaninfo.om'};
+const gov=govByQuery(q);if(gov&&/ولايات|اذكر|ماهي/.test(q)){const wl=governorateWilayats[gov.name]||gov.wilayats||[];return {answer:`ولايات محافظة ${gov.name}: ${wl.join('، ')}. والمركز الإداري للمحافظة هو ${gov.capital}.`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}if(gov&&/مركز|عاصمه|العاصمه/.test(q)){return {answer:`المركز الإداري لمحافظة ${gov.name} هو ${gov.capital}. ${gov.summary}`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}if(gov){return {answer:`${gov.summary} المركز الإداري للمحافظة هو ${gov.capital}. ومن ولاياتها: ${(governorateWilayats[gov.name]||gov.wilayats||[]).join('، ')}.`,source:`وزارة الإعلام – محافظة ${gov.name}`,url:gov.official||gov.source||'https://www.omaninfo.om/ar/oman'}}const wil=wilayaByQuery(q);if(wil){const x=wilayatInfo[wil];return {answer:x.answer+` وتتبع هذه الولاية محافظة ${x.gov}.`,source:x.source,url:x.url}}let best=null,score=0;for(const item of specialOmanTopics){let n=0;for(const term of item.terms){const t=sirajNormalize(term);if(q.includes(t))n+=t.length>=7?3:2}if(n>score){score=n;best=item}}return score>0?best:null}
 function sirajMessage(text,kind='bot',source=null){const target=document.getElementById('sirajMessages');if(!target)return;const div=document.createElement('div');div.className='siraj-msg '+kind;const content=document.createElement('div');content.textContent=text;div.appendChild(content);if(source){const line=document.createElement('div');line.style.marginTop='10px';const a=document.createElement('a');a.href=source.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='📚 المصدر: '+source.source;line.appendChild(a);div.appendChild(line)}target.appendChild(div);target.scrollTop=target.scrollHeight}
 let sirajInitialized=false;
-function initSirajChat(){const chips=document.getElementById('sirajSuggestions');if(!chips)return;chips.innerHTML='';sirajSampleQuestions.forEach(q=>{const b=document.createElement('button');b.textContent=q;b.type='button';b.onclick=()=>sirajAsk(q);chips.appendChild(b)});if(!sirajInitialized){sirajMessage('مرحبًا بك في «اسأل سراج»! 🇴🇲 تم توسيع هذا القسم ليجيب عن أسئلة كثيرة تخص عُمان ومحافظاتها وولاياتها وبعض المعالم والشخصيات. اكتب سؤالك وسأحاول تقديم إجابة مع مرجع للمراجعة.');sirajInitialized=true}}
+function initSirajChat(){const chips=document.getElementById('sirajSuggestions');if(!chips)return;chips.innerHTML='';[...new Set([...sirajFaqRows.slice(0,8).map(x=>x.title),...sirajSampleQuestions])].forEach(q=>{const b=document.createElement('button');b.textContent=q;b.type='button';b.onclick=()=>sirajAsk(q);chips.appendChild(b)});if(!sirajInitialized){sirajMessage('مرحبًا بك في «اسأل سراج»! 🇴🇲 تم توسيع هذا القسم ليجيب عن أسئلة كثيرة تخص عُمان ومحافظاتها وولاياتها وبعض المعالم والشخصيات. اكتب سؤالك وسأحاول تقديم إجابة مع مرجع للمراجعة.');sirajInitialized=true}}
 function sirajAsk(q){q=String(q||'').trim().slice(0,250);if(!q)return;sirajMessage(q,'user');const found=sirajAnswer(q);if(found)sirajMessage(found.answer,'bot',found);else sirajMessage('لا أملك إجابة موثقة لهذا السؤال داخل النسخة الحالية. جرّب كتابة اسم المحافظة أو الولاية مباشرة، أو اسأل: ما ولايات محافظة جنوب الشرقية؟ ما المركز الإداري لمحافظة الداخلية؟ أين تقع جعلان بني بوحسن؟');}
 function clearSirajChat(){document.getElementById('sirajMessages').innerHTML='';sirajInitialized=false;initSirajChat()}
 document.getElementById('sirajForm').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('sirajQuestion');sirajAsk(input.value);input.value='';input.focus()});
@@ -858,9 +863,73 @@ async function loadContent(section){
   return Array.isArray(parsed)?parsed:null;
  }catch(e){console.warn('Siraj public content ['+section+']:',e.message);return null}
 }
+
+function safeAdminImage(url){
+ const value=String(url||'').trim();
+ return /^https:\/\/[^ <>"']+$/i.test(value)||/^data:image\/webp;base64,[a-z0-9+/=]+$/i.test(value)?value:''
+}
+function renderSirajFAQ(){
+ let mount=document.getElementById('sirajFAQ');
+ if(!mount){mount=document.createElement('div');mount.id='sirajFAQ';mount.className='shell siraj-faq-list';document.getElementById('page-ask')?.append(mount)}
+ mount.replaceChildren();
+ if(!sirajFaqRows.length)return;
+ const heading=document.createElement('h2');heading.textContent='أسئلة معرفية أضيفت إلى سراج';mount.append(heading);
+ for(const item of sirajFaqRows){
+  const card=document.createElement('article');card.className='card siraj-faq-card';
+  const image=safeAdminImage(item.imageUrl);
+  if(image){const img=document.createElement('img');img.src=image;img.loading='lazy';img.className='siraj-content-photo';img.alt=item.title||'';card.append(img)}
+  const title=document.createElement('h3');title.textContent=item.title;card.append(title);
+  const p=document.createElement('p');p.textContent=item.body;card.append(p);
+  if(item.url&&/^https:\/\//.test(item.url)){const source=document.createElement('a');source.textContent='📚 '+(item.source||'عرض المرجع');source.href=item.url;source.target='_blank';source.rel='noopener noreferrer';card.append(source)}
+  mount.append(card)
+ }
+}
+function applyPageSettings(settings){
+ if(!Array.isArray(settings))return;
+ for(const setting of settings){
+  if(!setting||!/^(home|museum|figures|ask|monuments|lessons|discover|jaalan|journey|quiz|magazine|media|studio|dashboard)$/.test(setting.id||''))continue;
+  const page=document.getElementById('page-'+setting.id);
+  if(!page)continue;
+  const home=setting.id==='home',head=page.querySelector(home?'.hero-copy':'.pagehead .shell');
+  if(!head)continue;
+  const headline=head.querySelector('h1'),tag=head.querySelector(home?'.eyebrow':'.tag');
+  const desc=head.querySelector('h1 + p');
+  const source=head.querySelector('.section-source-tag');
+  if(typeof setting.title==='string'&&headline)headline.textContent=setting.title;
+  if(typeof setting.tag==='string'&&tag)tag.textContent=setting.tag;
+  if(typeof setting.description==='string'&&desc)desc.textContent=setting.description;
+  if(typeof setting.sourceNote==='string'&&source)source.textContent=setting.sourceNote;
+  const nav=document.querySelector('#nav a[data-page="'+setting.id+'"]');
+  if(nav&&typeof setting.navLabel==='string'&&setting.navLabel.trim())nav.textContent=setting.navLabel.trim();
+  let hero=page.querySelector('.siraj-page-hero-image');
+  if(hero)hero.remove();
+  const image=safeAdminImage(setting.imageUrl);
+  if(image){
+   hero=document.createElement('img');hero.className='siraj-page-hero-image';hero.src=image;hero.alt=setting.title||'صورة القسم';hero.loading='lazy';
+   head.append(hero)
+  }
+  let previous=page.querySelector('.siraj-page-extra');
+  if(previous)previous.remove();
+  if(!Array.isArray(setting.blocks)||!setting.blocks.length)continue;
+  const extra=document.createElement('div');extra.className='shell siraj-page-extra';
+  for(const block of setting.blocks.slice(0,45)){
+   if(!block||typeof block!=='object')continue;
+   const card=document.createElement('article');card.className='card siraj-page-extra-card';
+   const src=safeAdminImage(block.imageUrl);
+   if(src){const img=document.createElement('img');img.src=src;img.alt=block.title||'صورة إضافية';img.className='siraj-content-photo';img.loading='lazy';card.append(img)}
+   if(block.title){const h=document.createElement('h3');h.textContent=block.title;card.append(h)}
+   if(block.body){const p=document.createElement('p');p.textContent=block.body;card.append(p)}
+   if(block.link&&/^https:\/\/[^ <>"']+$/i.test(block.link)){const a=document.createElement('a');a.href=block.link;a.target='_blank';a.rel='noopener noreferrer';a.textContent='عرض الرابط أو المصدر';card.append(a)}
+   extra.append(card)
+  }
+  const anchor=page.querySelector(home?'.hero':'.pagehead');
+  if(anchor)anchor.insertAdjacentElement('afterend',extra);else page.prepend(extra)
+ }
+}
+
 async function refreshPublic(){
  if(!c.projectId)return;
- const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz'].map(loadContent));
+ const [articles,videos,lessons,works,media,museum,figuresCloud,monumentsCloud,discoverCloud,journeyCloud,quizCloud,pageSettings,faqRows,jaalanData]=await Promise.all(['articles','videos','lessons','works','jaalan_media','museum','figures','monuments','discover','journey','quiz','page_config','ask_faq','jaalan_landmarks'].map(loadContent));
  try{
  if(articles!==null){state.articles=articles.filter(x=>x&&typeof x.title==='string');renderArticles();updateStats()}
  if(videos!==null){state.videos=videos.filter(x=>x&&typeof x.title==='string');renderVideos();updateStats()}
@@ -876,6 +945,9 @@ async function refreshPublic(){
  if(monumentsCloud!==null){const rows=monumentsCloud.filter(x=>x&&x.id&&x.quiz&&Array.isArray(x.facts));monuments.splice(0,monuments.length,...rows);renderMonuments();if(typeof updateMonumentCounts==='function')updateMonumentCounts()}
  if(discoverCloud!==null){const rows=discoverCloud.filter(x=>x&&x.id&&x.quiz&&x.position);omanGovernorates.splice(0,omanGovernorates.length,...rows);renderDiscover()}
  if(journeyCloud!==null){const rows=journeyCloud.filter(x=>x&&x.id&&Array.isArray(x.a));regions.splice(0,regions.length,...rows);renderJourney()}
+ if(jaalanData!==null){const rows=jaalanData.filter(x=>x&&typeof x.title==='string'&&Array.isArray(x.facts));jaalanLandmarks.splice(0,jaalanLandmarks.length,...rows);renderJaalan()}
+ if(faqRows!==null){sirajFaqRows=faqRows.filter(x=>x&&typeof x.title==='string'&&typeof x.body==='string');renderSirajFAQ();initSirajChat()}
+ if(pageSettings!==null)applyPageSettings(pageSettings);
  if(quizCloud!==null){const rows=quizCloud.filter(x=>Array.isArray(x)&&Array.isArray(x[1])&&Number.isInteger(x[2]));questions.splice(0,questions.length,...rows);quizIdx=0;quizPts=0;quizAnswered=false;renderQuiz()}
  }catch(e){console.warn('Siraj cloud display:',e.message)}
 }
