@@ -445,7 +445,7 @@ function readForm(){
  if(section==='student_projects'){
   for(const key of ['title','targetAudience','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة واسم الطالب والمدرسة.');
   const attachmentUrl=el('sirajProjectAttachmentUrl')?.value.trim()||'';
-  if(attachmentUrl&&!/^https:\/\/[^\\s<>"']+$/i.test(attachmentUrl))throw Error('رابط المرفق يجب أن يبدأ بـ https:// وأن يكون صالحًا.');
+  if(attachmentUrl&&!/^https:\/\/[^\s<>"']+$/i.test(attachmentUrl))throw Error('رابط المرفق يجب أن يبدأ بـ https:// وأن يكون صالحًا.');
   result.attachmentUrl=attachmentUrl;
   if(!result.url&&!attachmentUrl&&!projectSelectedFile&&!(!projectClearAttachment&&entries[editingIndex]?.attachment))throw Error('أضف رابط المشروع أو اختر ملف المشروع من جهازك.');
   if(!el('projectsConsent')?.checked)throw Error('يرجى التأكد من وجود موافقة المدرسة وولي الأمر على نشر اسم الطالب والمشروع.');
