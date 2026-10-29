@@ -89,11 +89,12 @@ jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط ا
 page_config:{name:'🛠 إعدادات جميع صفحات المنصة',hint:'عدّل عنوان أي صفحة واسمها في القائمة والوصف وصورتها، وأضف بطاقات نصية وصورية أسفل مقدمتها. تشمل جميع أقسام المنصة.',fields:[['navLabel','الاسم في القائمة الرئيسية','text'],['tag','شارة الصفحة','text'],['title','العنوان الرئيسي للصفحة','text'],['description','وصف الصفحة','textarea'],['sourceNote','المصدر أو الملاحظة المرجعية','textarea']]},
 home_features:{name:'🏠 أيقونات وبطاقات الصفحة الرئيسية',hint:'تعديل أيقونة كل بطاقة وصورتها وعنوانها ووصفها ورابط انتقالها إلى أحد أقسام المنصة.',fields:[['title','اسم البطاقة','text'],['description','الوصف المختصر','textarea'],['emoji','أيقونة البطاقة (رمز صغير)','text'],['page','القسم الذي تفتحه البطاقة','text']]},
 student_projects:{name:'💡 مشاريع الطلبة',hint:'إضافة مشروع مع صورة وفئة مستهدفة ورابط واسم الطالب والمدرسة. تأكد من موافقة ولي الأمر قبل نشر بيانات القُصّر.',fields:[['title','اسم المشروع','text'],['targetAudience','الفئة المستهدفة','text'],['url','رابط المشروع HTTPS (اختياري عند إرفاق ملف)','url'],['studentName','اسم الطالب','text'],['school','اسم المدرسة','text'],['description','نبذة عن المشروع','textarea']]},
+educational_games:{name:'🎮 ألعاب تعليمية',hint:'اسم اللعبة ونوع المحتوى ورفع ملف أو إضافة رابط HTTPS. الحد الحالي للمرفقات المباشرة 300 كيلوبايت.',fields:[['title','اسم المحتوى أو اللعبة','text'],['contentType','نوع المحتوى (HTML / PDF / Word / PowerPoint / Excel / ZIP / صورة / ملف مشروع)','text'],['url','رابط المحتوى HTTPS (اختياري)','url'],['description','نبذة عن المحتوى','textarea']]},
 ask_faq:{name:'🤖 أسئلة وإجابات اسأل سراج',hint:'أضف أسئلة موثقة وإجاباتها وصورتها ورابط المصدر، لتظهر في المساعد المعرفي.',fields:[['title','السؤال','text'],['body','الإجابة','textarea'],['source','اسم المصدر','text'],['url','رابط المصدر','url']]},
 jaalan_landmarks:{name:'📍 معالم جعلان وتفاصيلها',hint:'تحرير صور وحقائق ومعالم جعلان بني بوحسن الأصلية.',complex:true},
 museum:{name:'🏛 المتحف الذكي',hint:'تحرير قاعات المتحف وأسئلتها وعناصرها، بما فيها القوائم والأسئلة المركبة.',complex:true},
 figures:{name:'👤 شخصيات عُمانية',hint:'إدارة بطاقات الشخصيات والمعلومات والأسئلة.',complex:true},
-monuments:{name:'🧱 معالم 3D',hint:'إدارة بيانات المعالم ووصفها وأسئلتها. رفع ملفات GLB وصورها يتطلب تخزينًا مخصصًا.',complex:true},
+monuments:{name:'🧱 معالم 3D',hint:'🧊 نوع الملف للمجسم: GLB (.glb). يمكن إضافة رابط HTTPS مباشر لمجسم جاهز. الصور PNG/JPG للعرض فقط ولا تتحول تلقائيًا إلى 3D.',complex:true},
 discover:{name:'🗺 اكتشف عُمان',hint:'إدارة المحافظات وبياناتها، مع مراعاة دقة الخريطة والمواقع.',complex:true},
 journey:{name:'🧭 رحلة عُمان',hint:'إدارة المحطات وأسئلة جواز سراج.',complex:true},
 quiz:{name:'🎯 تحدي سراج',hint:'إدارة أسئلة الاختبار وخيارات الإجابة الصحيحة.',complex:true}
@@ -418,7 +419,7 @@ function editItem(i){
  input.id='field-'+key;input.name=key;input.maxLength=type==='textarea'?12000:800;input.value=String(item[key]??'');
  if(key==='title'||(section==='lesson_subjects'&&key==='name'))input.required=true;
  div.append(label,input);host.append(div)
- if(section==='student_projects'&&key==='url')projectAttachmentEditor(host,item.attachment)
+ if((section==='student_projects'||section==='educational_games')&&key==='url')projectAttachmentEditor(host,item.attachment)
  }
  photoEditor(host,item.imageUrl||'');
  if(section==='student_projects'){
@@ -441,6 +442,13 @@ function readForm(){
  if(section==='lesson_subjects'){
   if(!result.name.trim())throw Error('أدخل اسم المادة الدراسية.');
   if(entries.some((x,n)=>n!==editingIndex&&x.name?.trim()===result.name.trim()))throw Error('هذه المادة الدراسية موجودة بالفعل.');
+ }
+ if(section==='educational_games'){
+  if(!result.title||!result.contentType)throw Error('أدخل اسم المحتوى ونوعه.');
+  const attachmentUrl=el('sirajProjectAttachmentUrl')?.value.trim()||'';
+  if(attachmentUrl&&!/^https:\/\//i.test(attachmentUrl))throw Error('رابط المرفق يجب أن يبدأ بـ https://');
+  result.attachmentUrl=attachmentUrl;
+  if(!result.url&&!attachmentUrl&&!projectSelectedFile&&!(!projectClearAttachment&&entries[editingIndex]?.attachment))throw Error('أضف ملفًا أو رابطًا للعبة التعليمية.');
  }
  if(section==='student_projects'){
   for(const key of ['title','targetAudience','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة واسم الطالب والمدرسة.');
@@ -568,7 +576,7 @@ async function openComplexEditor(i){
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
  if(section==='monuments'){
   const modelBox=document.createElement('div');modelBox.className='field';
-  const modelLabel=document.createElement('label');modelLabel.htmlFor='sirajMonumentModelUrl';modelLabel.textContent='🧊 رابط مجسم ثلاثي الأبعاد GLB (HTTPS)';
+  const modelLabel=document.createElement('label');modelLabel.htmlFor='sirajMonumentModelUrl';modelLabel.textContent='🧊 إضافة نموذج 3D — نوع الملف: GLB (.glb) — رابط HTTPS';
   const modelInput=document.createElement('input');modelInput.id='sirajMonumentModelUrl';modelInput.type='url';modelInput.placeholder='https://example.com/monument.glb';modelInput.maxLength=1500;modelInput.value=obj.modelUrl||'';
   const modelHint=document.createElement('p');modelHint.className='muted';modelHint.textContent='ألصق رابطًا مباشرًا لملف GLB منشورًا عبر HTTPS مع السماح بالوصول العام وCORS. الصور العادية لا تتحول هنا تلقائيًا إلى مجسم.';
   modelBox.append(modelLabel,modelInput,modelHint);host.append(modelBox);
@@ -625,7 +633,7 @@ async function save(e){
  try{
  await Promise.all([photoPromise,...pageBlockPromises,...namedLinkTasks]);
  const record=readForm();
- if(section==='student_projects'){msg('editorStatus','جارٍ تجهيز ملف المشروع وحفظه...',false);record.attachment=await readProjectAttachment(editingIndex>=0?entries[editingIndex]?.attachment:null)}
+ if(section==='student_projects'||section==='educational_games'){msg('editorStatus','جارٍ تجهيز ملف المحتوى وحفظه...',false);record.attachment=await readProjectAttachment(editingIndex>=0?entries[editingIndex]?.attachment:null)}
  const next=[...entries];const isNew=editingIndex<0;
  if(isNew)next.push(record);else next[editingIndex]=record;
  await cloudWrite(section,next);entries=next;if(isNew)editingIndex=entries.length-1;
@@ -649,7 +657,7 @@ try{const r=await fetch(section==='lesson_subjects'?'./lesson-subjects-starter.j
 el('seedButton').addEventListener('click',importStarter);
 
 const frame=el('sirajSiteFrame');
-const sectionByPage={projects:'student_projects',home:'page_config',museum:'museum',figures:'figures',ask:'ask_faq',monuments:'monuments',lessons:'lessons',discover:'discover',jaalan:'jaalan_landmarks',journey:'journey',quiz:'quiz',magazine:'articles',media:'videos',studio:'works',dashboard:'page_config'};
+const sectionByPage={projects:'student_projects',games:'educational_games',home:'page_config',museum:'museum',figures:'figures',ask:'ask_faq',monuments:'monuments',lessons:'lessons',discover:'discover',jaalan:'jaalan_landmarks',journey:'journey',quiz:'quiz',magazine:'articles',media:'videos',studio:'works',dashboard:'page_config'};
 let frameObserver=null;
 function showDrawer(){el('sirajDrawer').hidden=false;el('sirajBackdrop').hidden=false}
 function closeDrawer(){el('sirajDrawer').hidden=true;el('sirajBackdrop').hidden=true;el('editorView').hidden=true}
