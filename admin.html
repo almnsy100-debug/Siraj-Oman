@@ -387,7 +387,12 @@ function projectAttachmentEditor(host,existing={}){
   projectSelectedFile=chosen;projectClearAttachment=false;summary()
  });
  clear.addEventListener('click',()=>{projectSelectedFile=null;projectClearAttachment=true;input.value='';summary()});
- summary();host.append(root)
+ summary();
+ const linkLabel=document.createElement('label');linkLabel.htmlFor='sirajProjectAttachmentUrl';linkLabel.textContent='🔗 إضافة رابط للمشروع أو الملف (HTTPS)';
+ const linkInput=document.createElement('input');linkInput.id='sirajProjectAttachmentUrl';linkInput.type='url';linkInput.placeholder='https://example.com/project';linkInput.maxLength=1500;linkInput.value=String((editingIndex>=0?entries[editingIndex]?.attachmentUrl:'')||'');
+ const linkHint=document.createElement('p');linkHint.className='muted';linkHint.textContent='اختياري: أضف رابط لعبة أو صفحة تفاعلية أو ملف على الإنترنت، وسيظهر للزائر زر فتح الرابط.';
+ root.append(linkLabel,linkInput,linkHint);
+ host.append(root)
 }
 async function readProjectAttachment(existing){
  if(projectClearAttachment)return null;
@@ -439,7 +444,10 @@ function readForm(){
  }
  if(section==='student_projects'){
   for(const key of ['title','targetAudience','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة واسم الطالب والمدرسة.');
-  if(!result.url&&!projectSelectedFile&&!(!projectClearAttachment&&entries[editingIndex]?.attachment))throw Error('أضف رابط المشروع أو اختر ملف المشروع من جهازك.');
+  const attachmentUrl=el('sirajProjectAttachmentUrl')?.value.trim()||'';
+  if(attachmentUrl&&!/^https:\/\/[^\\s<>"']+$/i.test(attachmentUrl))throw Error('رابط المرفق يجب أن يبدأ بـ https:// وأن يكون صالحًا.');
+  result.attachmentUrl=attachmentUrl;
+  if(!result.url&&!attachmentUrl&&!projectSelectedFile&&!(!projectClearAttachment&&entries[editingIndex]?.attachment))throw Error('أضف رابط المشروع أو اختر ملف المشروع من جهازك.');
   if(!el('projectsConsent')?.checked)throw Error('يرجى التأكد من وجود موافقة المدرسة وولي الأمر على نشر اسم الطالب والمشروع.');
  }
  if(section==='lessons'){result.options=entries[editingIndex]?.options||['','',''];result.correct=entries[editingIndex]?.correct??0}
