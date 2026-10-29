@@ -357,11 +357,11 @@ function projectAttachmentEditor(host,existing={}){
  const root=document.createElement('section');root.className='siraj-project-attachment';
  const title=document.createElement('h3');title.textContent='📎 إرفاق ملف المشروع';root.append(title);
  const lead=document.createElement('p');lead.className='muted';
- lead.textContent='اختر ملف PDF أو Word أو PowerPoint أو Excel أو ZIP أو صورة أو ملف مشروع. الملفات الصغيرة (حتى 300 كيلوبايت) تحفظ داخل مشروعك. للملفات الكبيرة أضف رابط Google Drive أو استضافة HTTPS في خانة رابط المشروع.';
+ lead.textContent='اختر ملف HTML تفاعلي أو PDF أو Word أو PowerPoint أو Excel أو ZIP أو صورة أو ملف مشروع. الملفات الصغيرة (حتى 300 كيلوبايت) تحفظ داخل مشروعك. للملفات الكبيرة أضف رابط Google Drive أو استضافة HTTPS في خانة رابط المشروع.';
  root.append(lead);
  const label=document.createElement('label');label.htmlFor='sirajProjectFile';label.textContent='📎 اختيار ملف من الجهاز';
  const input=document.createElement('input');input.id='sirajProjectFile';input.type='file';
- input.accept='.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.md,.py,.sb3,.ev3,.glb,.png,.jpg,.jpeg,.webp,.mp3,.mp4,.apk,.json';
+ input.accept='.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.md,.html,.htm,.py,.sb3,.ev3,.glb,.png,.jpg,.jpeg,.webp,.mp3,.mp4,.apk,.json';
  root.append(label,input);
  const status=document.createElement('p');status.id='sirajProjectFileStatus';status.className='muted';status.setAttribute('role','status');root.append(status);
  const clear=document.createElement('button');clear.type='button';clear.className='btn secondary';clear.textContent='🗑 إزالة الملف المرفق';
@@ -381,7 +381,7 @@ function projectAttachmentEditor(host,existing={}){
    return
   }
   if(chosen.size===0){input.value='';status.textContent='هذا الملف فارغ؛ اختر ملفًا آخر.';return}
-  if(!/\.(pdf|docx?|pptx?|xlsx?|zip|txt|md|py|sb3|ev3|glb|png|jpe?g|webp|mp3|mp4|apk|json)$/i.test(chosen.name)){
+  if(!/\.(pdf|docx?|pptx?|xlsx?|zip|txt|md|html?|py|sb3|ev3|glb|png|jpe?g|webp|mp3|mp4|apk|json)$/i.test(chosen.name)){
    input.value='';status.textContent='صيغة الملف غير مدعومة. استخدم PDF أو ملف مستند أو عرض أو ZIP أو صورة أو صيغة مشروع معروفة.';return
   }
   projectSelectedFile=chosen;projectClearAttachment=false;summary()
