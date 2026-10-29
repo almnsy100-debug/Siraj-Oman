@@ -566,6 +566,13 @@ async function openComplexEditor(i){
  }
  if(obj.quiz||Array.isArray(obj.quizzes))multiQuestionEditor(host,Array.isArray(obj.quizzes)&&obj.quizzes.length?obj.quizzes:obj.quiz?[obj.quiz]:[]);
  if(section==='journey')answerForm(host,'journey',obj.q,obj.a,obj.correct,obj.explain);
+ if(section==='monuments'){
+  const modelBox=document.createElement('div');modelBox.className='field';
+  const modelLabel=document.createElement('label');modelLabel.htmlFor='sirajMonumentModelUrl';modelLabel.textContent='🧊 رابط مجسم ثلاثي الأبعاد GLB (HTTPS)';
+  const modelInput=document.createElement('input');modelInput.id='sirajMonumentModelUrl';modelInput.type='url';modelInput.placeholder='https://example.com/monument.glb';modelInput.maxLength=1500;modelInput.value=obj.modelUrl||'';
+  const modelHint=document.createElement('p');modelHint.className='muted';modelHint.textContent='ألصق رابطًا مباشرًا لملف GLB منشورًا عبر HTTPS مع السماح بالوصول العام وCORS. الصور العادية لا تتحول هنا تلقائيًا إلى مجسم.';
+  modelBox.append(modelLabel,modelInput,modelHint);host.append(modelBox);
+ }
  if(section!=='quiz'){photoEditor(host,obj.imageUrl||'');editNamedLinks(host,obj.links||[])}
  el('editorView').hidden=false;msg('editorStatus','جاهز للتحرير؛ ستظهر نتيجة الحفظ هنا.',false);
  el('editorView').scrollIntoView({behavior:'smooth',block:'start'})
@@ -603,6 +610,11 @@ function readComplexForm(){
  }
  if(el('sirajQuestionsList')){obj.quizzes=readMultiQuestions();obj.quiz=obj.quizzes[0]}
  if(section==='journey'){const x=readAnswers('journey');obj.q=x.q;obj.a=x.a;obj.correct=x.correct;obj.explain=x.explain}
+ if(section==='monuments'){
+  const modelUrl=el('sirajMonumentModelUrl')?.value.trim()||'';
+  if(modelUrl&&(!/^https:\/\//i.test(modelUrl)||!(/\.glb(?:[?#]|$)/i.test(modelUrl))))throw Error('أدخل رابط HTTPS مباشرًا ينتهي بامتداد GLB.');
+  obj.modelUrl=modelUrl;
+ }
  obj.imageUrl=photoValue();obj.links=readNamedLinks();
  return validateCMSItem(obj)
 }
