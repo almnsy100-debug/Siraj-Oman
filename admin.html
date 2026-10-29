@@ -366,8 +366,8 @@ function projectAttachmentEditor(host,existing={}){
  const input=document.createElement('input');input.type='file';input.multiple=true;input.accept='.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.md,.html,.htm,.py,.sb3,.ev3,.glb,.png,.jpg,.jpeg,.webp,.mp3,.mp4,.apk,.json';root.append(input);
  const fileList=document.createElement('div');root.append(fileList);
  const heading=document.createElement('label');heading.textContent='🔗 إضافة روابط متعددة (HTTPS)';root.append(heading);
- const nameInput=document.createElement('input');nameInput.placeholder='عنوان الرابط، مثل: تشغيل اللعبة';nameInput.maxLength=150;root.append(nameInput);
- const urlInput=document.createElement('input');urlInput.type='url';urlInput.placeholder='https://example.com';urlInput.maxLength=1500;root.append(urlInput);
+ const nameInput=document.createElement('input');nameInput.placeholder='عنوان الرابط، مثل: تشغيل اللعبة';nameInput.maxLength=150;nameInput.id='sirajProjectPendingName';root.append(nameInput);
+ const urlInput=document.createElement('input');urlInput.type='url';urlInput.placeholder='https://example.com';urlInput.maxLength=1500;urlInput.id='sirajProjectPendingUrl';root.append(urlInput);
  const add=document.createElement('button');add.type='button';add.className='btn secondary';add.textContent='＋ إضافة رابط آخر';root.append(add);
  const linkList=document.createElement('div');root.append(linkList);
  function refresh(){
@@ -437,6 +437,13 @@ function editItem(i){
 function readForm(){
  if(sections[section].complex)return readComplexForm();
  const result={};for(const [key] of sections[section].fields){const input=el('field-'+key);const value=input.value.trim();if(input.type==='url'&&value&&!/^https:\/\//i.test(value))throw Error('الروابط يجب أن تبدأ بـ https://');result[key]=value}
+ if(section==='student_projects'||section==='educational_games'){
+  const pendingUrl=el('sirajProjectPendingUrl')?.value.trim()||'';
+  if(pendingUrl){
+   if(!/^https:\/\//i.test(pendingUrl)||/\s/.test(pendingUrl))throw Error('أدخل رابط HTTPS صالحًا في خانة المرفقات.');
+   projectAttachmentLinks.push({title:el('sirajProjectPendingName')?.value.trim().slice(0,150)||'فتح الرابط',url:pendingUrl});
+  }
+ }
  result.imageUrl=photoValue();result.links=readNamedLinks();
  if(section==='page_config')result.blocks=readPageBlocks();
  result.id=editingIndex>=0?(entries[editingIndex].id||String(editingIndex)):('siraj-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8));
