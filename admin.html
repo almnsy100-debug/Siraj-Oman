@@ -394,7 +394,7 @@ function projectAttachmentEditor(host,existing={}){
  });
  add.onclick=()=>{
   const url=urlInput.value.trim();
-  if(!/^https:\/\/[^\\s<>"']+$/i.test(url)){alert('أدخل رابط HTTPS صالحًا.');return}
+  if(!url.startsWith('https://')||/\s/.test(url)){alert('أدخل رابط HTTPS صالحًا.');return}
   projectAttachmentLinks.push({title:nameInput.value.trim().slice(0,150)||'فتح الرابط',url});
   nameInput.value='';urlInput.value='';refresh()
  };
