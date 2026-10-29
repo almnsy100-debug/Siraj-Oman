@@ -802,7 +802,13 @@ function renderStudentProjects(items,mode='projects'){
   if(item.attachmentUrl&&/^https:\/\//i.test(item.attachmentUrl)){
     const attachmentLink=document.createElement('a');attachmentLink.className='btn secondary small';attachmentLink.href=item.attachmentUrl;attachmentLink.target='_blank';attachmentLink.rel='noopener noreferrer';attachmentLink.textContent='🔗 مشاهدة / فتح الرابط المرفق';card.append(attachmentLink);
   }
-  const attached=item.attachment;
+  const allLinks=Array.isArray(item.attachmentLinks)?item.attachmentLinks:(item.attachmentUrl?[{title:'فتح الرابط',url:item.attachmentUrl}]:[]);
+  for(const extra of allLinks){
+   if(!extra||typeof extra.url!=='string'||!/^https:\/\//i.test(extra.url))continue;
+   const link=document.createElement('a');link.className='btn secondary small';link.href=extra.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='🔗 '+String(extra.title||'فتح الرابط').slice(0,150);card.append(link);
+  }
+  const allAttachments=Array.isArray(item.attachments)?item.attachments:(item.attachment?[item.attachment]:[]);
+  for(const attached of allAttachments){
   if(attached&&typeof attached.name==='string'&&typeof attached.data==='string'&&attached.data.length<=440000&&/^[A-Za-z0-9+/=]+$/.test(attached.data)){
     const button=document.createElement('button');
     button.type='button';button.className='btn secondary small siraj-project-download';
@@ -845,6 +851,7 @@ function renderStudentProjects(items,mode='projects'){
       }catch(e){alert('تعذر تنزيل ملف المشروع. أبلغ مسؤول المنصة لمراجعة المرفق.');console.warn('Project attachment',e.message)}
     });
     card.append(button);
+  }
   }
   const links=sirajLinksMarkup(item);
   if(links){const pane=document.createElement('div');pane.innerHTML=links;card.append(pane)}
