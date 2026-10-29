@@ -801,7 +801,7 @@ function renderStudentProjects(items){
   if(attached&&typeof attached.name==='string'&&typeof attached.data==='string'&&attached.data.length<=440000&&/^[A-Za-z0-9+/=]+$/.test(attached.data)){
     const button=document.createElement('button');
     button.type='button';button.className='btn secondary small siraj-project-download';
-    const isInteractiveHtml=/\\.html?$/i.test(attached.name);
+    const isInteractiveHtml=/\.html?$/i.test(attached.name);
     button.textContent=isInteractiveHtml?'🎮 مشاهدة وتشغيل المشروع':'📎 تنزيل ملف المشروع: '+attached.name;
     button.addEventListener('click',()=>{
       try{
