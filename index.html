@@ -801,11 +801,29 @@ function renderStudentProjects(items){
   if(attached&&typeof attached.name==='string'&&typeof attached.data==='string'&&attached.data.length<=440000&&/^[A-Za-z0-9+/=]+$/.test(attached.data)){
     const button=document.createElement('button');
     button.type='button';button.className='btn secondary small siraj-project-download';
-    button.textContent='📎 تنزيل ملف المشروع: '+attached.name;
+    const isInteractiveHtml=/\\.html?$/i.test(attached.name);
+    button.textContent=isInteractiveHtml?'🎮 مشاهدة وتشغيل المشروع':'📎 تنزيل ملف المشروع: '+attached.name;
     button.addEventListener('click',()=>{
       try{
         const binary=atob(attached.data),bytes=new Uint8Array(binary.length);
         for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+        if(isInteractiveHtml){
+          const html=new TextDecoder('utf-8',{fatal:false}).decode(bytes);
+          // Scripts run in an opaque sandbox: never grant same-origin access to student HTML.
+          openModal('<h2 id="modalTitle">🎮 '+esc(attached.name)+'</h2><div id="studentProjectViewer"></div>');
+          const viewer=document.getElementById('studentProjectViewer');
+          if(!viewer)return;
+          const frame=document.createElement('iframe');
+          frame.title='مشاهدة وتشغيل '+attached.name;
+          frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals');
+          frame.setAttribute('referrerpolicy','no-referrer');
+          frame.style.cssText='display:block;width:100%;height:min(76vh,820px);min-height:480px;border:1px solid #ddd;border-radius:12px;background:#fff';
+          // In-memory storage fallback for games using localStorage in sandboxed documents.
+          const shim='<script>const localStorage=(()=>{const m=new Map();return {getItem:k=>m.has(String(k))?m.get(String(k)):null,setItem:(k,v)=>m.set(String(k),String(v)),removeItem:k=>m.delete(String(k)),clear:()=>m.clear()}})();<\\/script>';
+          frame.srcdoc=html.replace(/<head([^>]*)>/i,match=>match+shim);
+          viewer.append(frame);
+          return;
+        }
         const blob=new Blob([bytes],{type:'application/octet-stream'});
         const objectUrl=URL.createObjectURL(blob);
         const a=document.createElement('a');a.href=objectUrl;a.download=attached.name.replace(/[/\\\x00-\x1f]/g,'_').slice(0,180)||'project-file';a.style.display='none';
