@@ -799,7 +799,7 @@ function renderStudentProjects(items,mode='projects'){
   }
   card.append(facts);
   if(item.url&&/^https:\/\/[^ <>"']+$/i.test(item.url)){const link=document.createElement('a');link.className='btn small';link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='↗ فتح المشروع';card.append(link)}
-  if(item.attachmentUrl&&/^https:\/\//i.test(item.attachmentUrl)){
+  if(!Array.isArray(item.attachmentLinks)&&item.attachmentUrl&&/^https:\/\//i.test(item.attachmentUrl)){
     const attachmentLink=document.createElement('a');attachmentLink.className='btn secondary small';attachmentLink.href=item.attachmentUrl;attachmentLink.target='_blank';attachmentLink.rel='noopener noreferrer';attachmentLink.textContent='🔗 مشاهدة / فتح الرابط المرفق';card.append(attachmentLink);
   }
   const allLinks=Array.isArray(item.attachmentLinks)?item.attachmentLinks:(item.attachmentUrl?[{title:'فتح الرابط',url:item.attachmentUrl}]:[]);
