@@ -26,7 +26,14 @@ body.siraj-manager #adminView{position:fixed;inset:0;z-index:150;overflow:hidden
 #editorStatus{padding:12px;margin-top:10px;border-radius:10px;background:#f3f0ec;line-height:1.8}#editorStatus.error{background:#fff0f1;color:#a02336}#editorStatus.ok{background:#ecf8f1;color:#176b4c}#editorFields .field{margin:11px 0}#editorFields .field textarea{min-height:110px;line-height:1.8}#editorFields .siraj-group{background:#fff9ef;border:1px solid #ead8b5;border-radius:14px;padding:14px;margin:14px 0}#editorFields .siraj-group legend{font-weight:bold;color:#711e30}#saveButton:disabled{opacity:.6}
 #editorFields .siraj-photo{background:#fffaf0;border:1px solid #e7d3ad;border-radius:14px;padding:14px;margin-top:15px}#editorFields .siraj-photo label{display:block;font-weight:bold;margin:8px 0}#editorFields .siraj-photo img{display:block;max-width:100%;height:180px;object-fit:contain;background:#f7f0e6;border-radius:8px;margin:8px auto}#editorFields .siraj-photo small{display:block;color:#666}#editorFields .siraj-photo .btn{margin:10px 0}#editorFields .siraj-photo img[hidden]{display:none!important}
 .siraj-multi-quiz{border:2px solid #ead2ad;border-radius:14px;padding:13px;background:#fffdf8;margin:16px 0}.siraj-one-question{border:1px solid #e2d7cb;border-radius:12px;background:white;padding:12px;margin:12px 0}.siraj-quiz-bar{display:flex;align-items:center;justify-content:space-between;gap:9px}.siraj-one-question .siraj-group{margin:10px 0}.siraj-multi-quiz h3{color:#711e30;margin:5px 0 9px}
-.siraj-named-links{padding:14px;margin-top:18px;border:1px solid #d9b98e;background:#fff9f0;border-radius:14px}.siraj-named-links h3{color:#711e30;margin:4px 0}.siraj-named-link{margin:12px 0;background:white}.siraj-named-link input{width:100%}.siraj-project-consent{display:flex;align-items:flex-start;gap:8px;padding:13px;background:#fff6e2;border:1px solid #e0ca9c;border-radius:11px;line-height:1.9}.siraj-project-consent input{width:20px;height:20px;flex:none;margin-top:3px}</style>
+.siraj-named-links{padding:14px;margin-top:18px;border:1px solid #d9b98e;background:#fff9f0;border-radius:14px}.siraj-named-links h3{color:#711e30;margin:4px 0}.siraj-named-link{margin:12px 0;background:white}.siraj-named-link input{width:100%}.siraj-project-consent{display:flex;align-items:flex-start;gap:8px;padding:13px;background:#fff6e2;border:1px solid #e0ca9c;border-radius:11px;line-height:1.9}.siraj-project-consent input{width:20px;height:20px;flex:none;margin-top:3px}
+.siraj-project-attachment{background:#fff9ed;border:1px solid #e5d3b2;border-radius:14px;padding:15px;margin:12px 0}
+.siraj-project-attachment h3{color:#711e30;margin:5px 0}
+.siraj-project-attachment label{display:block;margin:12px 0 7px;font-weight:700}
+.siraj-project-attachment input[type=file]{display:block;width:100%;background:white;padding:12px;border:1px solid #d9c3aa;border-radius:10px}
+.siraj-project-attachment p{line-height:1.8}
+.siraj-project-attachment .btn{margin-top:8px}
+</style>
 <script src="./siraj-config.js"></script>
 </head>
 <body>
@@ -81,7 +88,7 @@ works:{name:'إنتاج الطلبة',hint:'اعرض أعمال الفرق ال�
 jaalan_media:{name:'جعلان: فيديو وبودكاست',hint:'روابط الفيديو والتسجيلات المنشورة؛ رفع الملفات المباشر يحتاج تخزينًا سحابيًا منفصلًا.',fields:[['title','العنوان','text'],['type','النوع (video / audio)','text'],['desc','الوصف','textarea'],['url','رابط المادة','url']]},
 page_config:{name:'🛠 إعدادات جميع صفحات المنصة',hint:'عدّل عنوان أي صفحة واسمها في القائمة والوصف وصورتها، وأضف بطاقات نصية وصورية أسفل مقدمتها. تشمل جميع أقسام المنصة.',fields:[['navLabel','الاسم في القائمة الرئيسية','text'],['tag','شارة الصفحة','text'],['title','العنوان الرئيسي للصفحة','text'],['description','وصف الصفحة','textarea'],['sourceNote','المصدر أو الملاحظة المرجعية','textarea']]},
 home_features:{name:'🏠 أيقونات وبطاقات الصفحة الرئيسية',hint:'تعديل أيقونة كل بطاقة وصورتها وعنوانها ووصفها ورابط انتقالها إلى أحد أقسام المنصة.',fields:[['title','اسم البطاقة','text'],['description','الوصف المختصر','textarea'],['emoji','أيقونة البطاقة (رمز صغير)','text'],['page','القسم الذي تفتحه البطاقة','text']]},
-student_projects:{name:'💡 مشاريع الطلبة',hint:'إضافة مشروع مع صورة وفئة مستهدفة ورابط واسم الطالب والمدرسة. تأكد من موافقة ولي الأمر قبل نشر بيانات القُصّر.',fields:[['title','اسم المشروع','text'],['targetAudience','الفئة المستهدفة','text'],['url','رابط المشروع HTTPS','url'],['studentName','اسم الطالب','text'],['school','اسم المدرسة','text'],['description','نبذة عن المشروع','textarea']]},
+student_projects:{name:'💡 مشاريع الطلبة',hint:'إضافة مشروع مع صورة وفئة مستهدفة ورابط واسم الطالب والمدرسة. تأكد من موافقة ولي الأمر قبل نشر بيانات القُصّر.',fields:[['title','اسم المشروع','text'],['targetAudience','الفئة المستهدفة','text'],['url','رابط المشروع HTTPS (اختياري عند إرفاق ملف)','url'],['studentName','اسم الطالب','text'],['school','اسم المدرسة','text'],['description','نبذة عن المشروع','textarea']]},
 ask_faq:{name:'🤖 أسئلة وإجابات اسأل سراج',hint:'أضف أسئلة موثقة وإجاباتها وصورتها ورابط المصدر، لتظهر في المساعد المعرفي.',fields:[['title','السؤال','text'],['body','الإجابة','textarea'],['source','اسم المصدر','text'],['url','رابط المصدر','url']]},
 jaalan_landmarks:{name:'📍 معالم جعلان وتفاصيلها',hint:'تحرير صور وحقائق ومعالم جعلان بني بوحسن الأصلية.',complex:true},
 museum:{name:'🏛 المتحف الذكي',hint:'تحرير قاعات المتحف وأسئلتها وعناصرها، بما فيها القوائم والأسئلة المركبة.',complex:true},
@@ -340,6 +347,61 @@ function readPageBlocks(){
  }).filter(Boolean)
 }
 
+
+/* Student-project file attachments (small files embedded in the authorized Firestore record).
+   Larger artifacts must be hosted externally and entered in the HTTPS link field. */
+const PROJECT_ATTACHMENT_LIMIT=300*1024;
+let projectSelectedFile=null,projectClearAttachment=false;
+function projectAttachmentEditor(host,existing={}){
+ projectSelectedFile=null;projectClearAttachment=false;
+ const root=document.createElement('section');root.className='siraj-project-attachment';
+ const title=document.createElement('h3');title.textContent='📎 إرفاق ملف المشروع';root.append(title);
+ const lead=document.createElement('p');lead.className='muted';
+ lead.textContent='اختر ملف PDF أو Word أو PowerPoint أو Excel أو ZIP أو صورة أو ملف مشروع. الملفات الصغيرة (حتى 300 كيلوبايت) تحفظ داخل مشروعك. للملفات الكبيرة أضف رابط Google Drive أو استضافة HTTPS في خانة رابط المشروع.';
+ root.append(lead);
+ const label=document.createElement('label');label.htmlFor='sirajProjectFile';label.textContent='📎 اختيار ملف من الجهاز';
+ const input=document.createElement('input');input.id='sirajProjectFile';input.type='file';
+ input.accept='.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt,.md,.py,.sb3,.ev3,.glb,.png,.jpg,.jpeg,.webp,.mp3,.mp4,.apk,.json';
+ root.append(label,input);
+ const status=document.createElement('p');status.id='sirajProjectFileStatus';status.className='muted';status.setAttribute('role','status');root.append(status);
+ const clear=document.createElement('button');clear.type='button';clear.className='btn secondary';clear.textContent='🗑 إزالة الملف المرفق';
+ clear.hidden=!existing?.name;root.append(clear);
+ const summary=()=>{
+  if(projectSelectedFile){status.textContent='✅ جاهز للحفظ: '+projectSelectedFile.name+' ('+Math.ceil(projectSelectedFile.size/1024)+' كيلوبايت)';clear.hidden=false;return}
+  if(projectClearAttachment){status.textContent='ستتم إزالة الملف بعد الضغط على «حفظ ونشر». وبعدها يمكن إرفاق ملف جديد.';clear.hidden=true;return}
+  if(existing?.name){status.textContent='الملف المرفق حاليًا: '+existing.name+' — يمكنك استبداله بملف آخر.';clear.hidden=false;return}
+  status.textContent='لم يتم اختيار ملف بعد.';clear.hidden=true
+ };
+ input.addEventListener('change',()=>{
+  const chosen=input.files?.[0];
+  if(!chosen)return;
+  if(chosen.size>PROJECT_ATTACHMENT_LIMIT){
+   input.value='';projectSelectedFile=null;
+   status.textContent='❌ الملف أكبر من 300 كيلوبايت. ارفعه إلى Google Drive أو خدمة موثوقة وأضف رابط مشاركته في «رابط المشروع».';
+   return
+  }
+  if(chosen.size===0){input.value='';status.textContent='هذا الملف فارغ؛ اختر ملفًا آخر.';return}
+  if(!/\.(pdf|docx?|pptx?|xlsx?|zip|txt|md|py|sb3|ev3|glb|png|jpe?g|webp|mp3|mp4|apk|json)$/i.test(chosen.name)){
+   input.value='';status.textContent='صيغة الملف غير مدعومة. استخدم PDF أو ملف مستند أو عرض أو ZIP أو صورة أو صيغة مشروع معروفة.';return
+  }
+  projectSelectedFile=chosen;projectClearAttachment=false;summary()
+ });
+ clear.addEventListener('click',()=>{projectSelectedFile=null;projectClearAttachment=true;input.value='';summary()});
+ summary();host.append(root)
+}
+async function readProjectAttachment(existing){
+ if(projectClearAttachment)return null;
+ if(!projectSelectedFile)return existing||null;
+ const file=projectSelectedFile;
+ if(file.size>PROJECT_ATTACHMENT_LIMIT)throw Error('الملف يتجاوز 300 كيلوبايت؛ استخدم رابط مشروع خارجيًا.');
+ const result=await new Promise((resolve,reject)=>{
+  const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(Error('تعذر قراءة ملف المشروع.'));reader.readAsDataURL(file)
+ });
+ const match=result.match(/^data:[^,]*;base64,([A-Za-z0-9+/=]+)$/);
+ if(!match)throw Error('تعذّر تحويل الملف إلى صيغة مناسبة للحفظ.');
+ return {name:file.name.slice(0,180),size:file.size,data:match[1]}
+}
+
 function editItem(i){
  if(!token)return;editingIndex=i;
  if(sections[section].complex){openComplexEditor(i);return}
@@ -351,6 +413,7 @@ function editItem(i){
  input.id='field-'+key;input.name=key;input.maxLength=type==='textarea'?12000:800;input.value=String(item[key]??'');
  if(key==='title'||(section==='lesson_subjects'&&key==='name'))input.required=true;
  div.append(label,input);host.append(div)
+ if(section==='student_projects'&&key==='url')projectAttachmentEditor(host,item.attachment)
  }
  photoEditor(host,item.imageUrl||'');
  if(section==='student_projects'){
@@ -375,7 +438,8 @@ function readForm(){
   if(entries.some((x,n)=>n!==editingIndex&&x.name?.trim()===result.name.trim()))throw Error('هذه المادة الدراسية موجودة بالفعل.');
  }
  if(section==='student_projects'){
-  for(const key of ['title','targetAudience','url','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة والرابط واسم الطالب والمدرسة.');
+  for(const key of ['title','targetAudience','studentName','school'])if(!result[key])throw Error('أكمل اسم المشروع والفئة المستهدفة واسم الطالب والمدرسة.');
+  if(!result.url&&!projectSelectedFile&&!(!projectClearAttachment&&entries[editingIndex]?.attachment))throw Error('أضف رابط المشروع أو اختر ملف المشروع من جهازك.');
   if(!el('projectsConsent')?.checked)throw Error('يرجى التأكد من وجود موافقة المدرسة وولي الأمر على نشر اسم الطالب والمشروع.');
  }
  if(section==='lessons'){result.options=entries[editingIndex]?.options||['','',''];result.correct=entries[editingIndex]?.correct??0}
@@ -540,7 +604,9 @@ async function save(e){
  msg('editorStatus','جارٍ الحفظ...',false);
  try{
  await Promise.all([photoPromise,...pageBlockPromises,...namedLinkTasks]);
- const record=readForm();const next=[...entries];const isNew=editingIndex<0;
+ const record=readForm();
+ if(section==='student_projects'){msg('editorStatus','جارٍ تجهيز ملف المشروع وحفظه...',false);record.attachment=await readProjectAttachment(editingIndex>=0?entries[editingIndex]?.attachment:null)}
+ const next=[...entries];const isNew=editingIndex<0;
  if(isNew)next.push(record);else next[editingIndex]=record;
  await cloudWrite(section,next);entries=next;if(isNew)editingIndex=entries.length-1;
  renderItems();msg('adminMessage','تم حفظ المحتوى بنجاح.',false);
