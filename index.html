@@ -76,7 +76,7 @@ model-viewer.real3d:defined + .fallback-3d{display:none}model-viewer.real3d:not(
 {display:none!important}
 .siraj-feature-photo{display:block;width:100%;height:100%;max-height:165px;object-fit:contain;border-radius:14px}.feature:has(.siraj-feature-photo) .icon{font-size:initial;overflow:hidden}
 .siraj-linked-resources{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.siraj-resource-link{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;background:#fff9f0;border:1px solid #d9c3a0;border-radius:11px;color:#711e30;font-size:13px;font-weight:800;text-decoration:none;max-width:100%;overflow-wrap:anywhere}.siraj-resource-link img{width:48px;height:44px;object-fit:cover;border-radius:7px}.siraj-link-icon{font-size:19px}.student-project-card{padding:17px;overflow-wrap:anywhere}.student-project-card h3{font-size:19px;color:var(--wine);margin:12px 0}.student-project-card .siraj-content-photo{height:190px}.student-project-facts{display:grid;gap:7px;margin:12px 0;color:var(--muted);font-size:13px}
-</style>
+.siraj-project-download{display:inline-flex;max-width:100%;margin:8px 0;white-space:normal;overflow-wrap:anywhere;text-align:right}</style>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script><style id="jaalan-media-style">
 .jaalan-media-section{margin-top:42px}.jaalan-media-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.jaalan-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.jaalan-media-item{overflow:hidden}.jaalan-media-item h3{color:var(--wine);margin:12px 0 4px}.jaalan-media-item p{font-size:13px;line-height:1.8;color:var(--muted)}.jaalan-media-item video,.jaalan-media-item audio{width:100%;max-height:260px;border-radius:12px;background:#331a25}.jaalan-media-item a{color:var(--wine);font-weight:bold;overflow-wrap:anywhere}.jaalan-media-item .media-icon{font-size:43px;padding:22px;text-align:center;background:#f7f1eb;border-radius:14px}.jaalan-media-add{margin-top:23px}.jaalan-media-add summary{font-weight:900;cursor:pointer;color:var(--wine);font-size:18px}.jaalan-media-form{display:grid;gap:14px;padding-top:16px}.jaalan-media-form label{display:grid;gap:6px;font-weight:700;color:var(--wine)}.jaalan-media-form input,.jaalan-media-form select,.jaalan-media-form textarea{width:100%;border:1px solid #d7c5c8;border-radius:10px;padding:11px;color:#263035;background:#fff}.jaalan-media-form .btn{justify-self:start}.jaalan-media-note{font-size:12px;line-height:1.8;color:#74655e;background:#fff7e7;border-radius:12px;padding:12px}
 </style><style id="heritage-outline-visible-fix">
@@ -797,6 +797,23 @@ function renderStudentProjects(items){
   }
   card.append(facts);
   if(item.url&&/^https:\/\/[^ <>"']+$/i.test(item.url)){const link=document.createElement('a');link.className='btn small';link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='↗ فتح المشروع';card.append(link)}
+  const attached=item.attachment;
+  if(attached&&typeof attached.name==='string'&&typeof attached.data==='string'&&attached.data.length<=440000&&/^[A-Za-z0-9+/=]+$/.test(attached.data)){
+    const button=document.createElement('button');
+    button.type='button';button.className='btn secondary small siraj-project-download';
+    button.textContent='📎 تنزيل ملف المشروع: '+attached.name;
+    button.addEventListener('click',()=>{
+      try{
+        const binary=atob(attached.data),bytes=new Uint8Array(binary.length);
+        for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+        const blob=new Blob([bytes],{type:'application/octet-stream'});
+        const objectUrl=URL.createObjectURL(blob);
+        const a=document.createElement('a');a.href=objectUrl;a.download=attached.name.replace(/[/\\\x00-\x1f]/g,'_').slice(0,180)||'project-file';a.style.display='none';
+        document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),2000);
+      }catch(e){alert('تعذر تنزيل ملف المشروع. أبلغ مسؤول المنصة لمراجعة المرفق.');console.warn('Project attachment',e.message)}
+    });
+    card.append(button);
+  }
   const links=sirajLinksMarkup(item);
   if(links){const pane=document.createElement('div');pane.innerHTML=links;card.append(pane)}
   host.append(card)
