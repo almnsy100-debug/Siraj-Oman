@@ -387,7 +387,7 @@ function projectAttachmentEditor(host,existing={}){
  input.addEventListener('change',()=>{
   for(const f of Array.from(input.files||[])){
    if(!f.size||f.size>300*1024){alert('الملف '+f.name+' فارغ أو أكبر من 300 كيلوبايت.');continue}
-   if(!/\\.(pdf|docx?|pptx?|xlsx?|zip|txt|md|html?|py|sb3|ev3|glb|png|jpe?g|webp|mp3|mp4|apk|json)$/i.test(f.name)){alert('صيغة غير مدعومة: '+f.name);continue}
+   if(!f.name.toLowerCase().match(/[.](pdf|docx?|pptx?|xlsx?|zip|txt|md|html?|py|sb3|ev3|glb|png|jpe?g|webp|mp3|mp4|apk|json)$/i)){alert('صيغة غير مدعومة: '+f.name);continue}
    projectSelectedFiles.push(f);
   }
   input.value='';refresh()
